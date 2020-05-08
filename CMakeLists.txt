@@ -30,5 +30,5 @@ install(
 )
 
 ### Test application
-add_executable(smeagol-test src/smeagol-test.cpp)
+add_executable(smeagol-test src/ports-test.cpp)
 target_link_libraries(smeagol-test smeagol::smeagol)
