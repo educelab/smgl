@@ -1,12 +1,17 @@
 cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
 project(smeagol VERSION 1.0.0)
 
+# Setup project directories
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
+set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+
 # Public headers
 set(public_hdrs
     include/smeagol/Ports.hpp
 )
 
-# smeagol lib
+# smeagol lib #
 add_library(smeagol INTERFACE)
 add_library(smeagol::smeagol ALIAS smeagol)
 target_include_directories(smeagol
@@ -29,6 +34,9 @@ install(
     PUBLIC_HEADER DESTINATION "include/smeagol"
 )
 
-### Test application
-add_executable(smeagol-test src/ports-test.cpp)
-target_link_libraries(smeagol-test smeagol::smeagol)
+# Tests #
+option(SMEAGOL_BUILD_TESTS "Compile smeagol tests" on)
+if(SMEAGOL_BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(tests)
+endif()
