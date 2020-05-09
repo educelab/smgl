@@ -21,25 +21,25 @@ int main(int argc, char* argv[])
 {
     // Constant variable output port
     int vConst = 7;
-    ValuedOutputPort<int> varConstOutPort(vConst);
+    OutputPort<int> varConstOutPort(vConst);
     std::cout << varConstOutPort.val() << std::endl;
     vConst = 8;
     std::cout << varConstOutPort.val() << std::endl << std::endl;
 
     // Reference variable output port
     int vRef = 7;
-    ValuedOutputPort<int> varRefOutPort(&vRef);
+    OutputPort<int> varRefOutPort(&vRef);
     std::cout << varRefOutPort.val() << std::endl;
     vRef = 8;
     std::cout << varRefOutPort.val() << std::endl;
 
     // Function output port
-    ValuedOutputPort<int> fnRefOutPort(&foo);
+    OutputPort<int> fnRefOutPort(&foo);
     std::cout << fnRefOutPort.val() << std::endl;
 
     // Instance function output port
     Foo f;
-    ValuedOutputPort<int> objFnRefOutPort(std::bind(&Foo::bar, &f));
+    OutputPort<int> objFnRefOutPort(std::bind(&Foo::bar, &f));
     std::cout << objFnRefOutPort.val() << std::endl;
     f.b += 1;
     std::cout << objFnRefOutPort.val() << std::endl;
@@ -59,7 +59,7 @@ int main(int argc, char* argv[])
     std::cout << f.b << std::endl;
 
     // Port connections
-    ValuedOutputPort<int> connectOut(7);
+    OutputPort<int> connectOut(7);
     int result = 0;
     InputPort<int> connectIn(&result);
     connectOut.connect(connectIn);
