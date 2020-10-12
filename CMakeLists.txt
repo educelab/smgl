@@ -1,42 +1,35 @@
 cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
-project(smeagol VERSION 1.0.0)
+project(smeagol VERSION 0.5.0)
 
 # Setup project directories
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
-# Public headers
-set(public_hdrs
-    include/smeagol/Ports.hpp
-)
+# Modules
+include(FetchContent)
+include(CMakeDependentOption)
+include(CheckIncludeFileCXX)
 
-# smeagol lib #
-add_library(smeagol INTERFACE)
-add_library(smeagol::smeagol ALIAS smeagol)
-target_include_directories(smeagol
-    INTERFACE
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<INSTALL_INTERFACE:include>
-)
-target_compile_features(smeagol INTERFACE cxx_std_14)
+# Find deps
+include(FindDependencies)
 
-# Install Library ##
-set_target_properties(smeagol
-    PROPERTIES
-        PUBLIC_HEADER ${public_hdrs}
-)
-install(
-    TARGETS smeagol
-    ARCHIVE DESTINATION "lib"
-    LIBRARY DESTINATION "lib"
-    INCLUDES DESTINATION
-    PUBLIC_HEADER DESTINATION "include/smeagol"
-)
+# Build the library
+add_subdirectory(smgl)
+
+# Build the docs
+find_package(Doxygen OPTIONAL_COMPONENTS dot)
+CMAKE_DEPENDENT_OPTION(SMGL_BUILD_DOCS "Build Doxygen documentation" on "DOXYGEN_FOUND" off)
+if(SMGL_BUILD_DOCS)
+    add_subdirectory(docs)
+endif()
 
 # Tests #
-option(SMEAGOL_BUILD_TESTS "Compile smeagol tests" on)
-if(SMEAGOL_BUILD_TESTS)
+option(SMGL_BUILD_TESTS "Compile smeagol unit tests" off)
+if(SMGL_BUILD_TESTS)
     enable_testing()
     add_subdirectory(tests)
 endif()
+
+# Install the library
+include(InstallProject)
