@@ -1,0 +1,117 @@
+#include <algorithm>
+#include <array>
+#include <iomanip>
+#include <random>
+#include <regex>
+#include <sstream>
+
+namespace smgl
+{
+
+namespace detail
+{
+/**
+ * @brief Create a random number engine
+ *
+ * Constructs a random number engine seeded with a random sequence to improve
+ * entropy.
+ *
+ * Solution from: https://codereview.stackexchange.com/a/109266
+ */
+template <
+    class T = std::mt19937,
+    std::size_t N = T::state_size * sizeof(typename T::result_type)>
+typename std::enable_if<N != 0, T>::type SeededRandomEngine()
+{
+    std::random_device source;
+    using ArrayT = std::random_device::result_type;
+    std::array<ArrayT, (N - 1) / sizeof(source()) + 1> random_data{};
+    std::generate(
+        std::begin(random_data), std::end(random_data), std::ref(source));
+    std::seed_seq seeds(std::begin(random_data), std::end(random_data));
+    return T(seeds);
+}
+}  // namespace detail
+
+Uuid::operator bool() const { return is_nil(); }
+
+bool Uuid::operator==(const Uuid& rhs) const { return buffer_ == rhs.buffer_; }
+
+bool Uuid::operator!=(const Uuid& rhs) const { return buffer_ != rhs.buffer_; }
+
+void Uuid::reset() { buffer_.fill(0); }
+
+bool Uuid::is_nil() const
+{
+    return std::all_of(
+        buffer_.begin(), buffer_.end(), [](const auto& v) { return v == 0; });
+}
+
+std::string Uuid::string() const
+{
+    std::stringstream ss;
+    ss << std::hex << std::setfill('0');
+    for (size_t idx = 0; idx < buffer_.size(); idx++) {
+        if (idx == 4 or idx == 6 or idx == 8 or idx == 10) {
+            ss << '\u002D';
+        }
+        ss << std::setw(2) << static_cast<unsigned>(buffer_[idx]);
+    }
+    return ss.str();
+}
+
+Uuid Uuid::FromString(const std::string& str)
+{
+    // TODO: 13th character (first digit of 7th byte) is version number
+    static std::regex uuidRe{
+        R"([a-f0-9]{8}\u002D[a-f0-9]{4}\u002D[a-f0-9]{4}\u002D[a-f0-9]{4}\u002D[a-f0-9]{12})"};
+    if (not std::regex_match(str, uuidRe)) {
+        throw std::invalid_argument("Provided string not a valid Uuid");
+    }
+
+    // Make new uuid
+    Uuid uuid;
+
+    // Iterate over string
+    size_t strIdx{0};
+    for (auto& byte : uuid.buffer_) {
+        // Skip the dashes
+        if (str[strIdx] == '\u002D') {
+            strIdx++;
+        }
+
+        // Get the next two chars and convert
+        auto byteStr = str.substr(strIdx, 2);
+        byte = std::strtoul(byteStr.c_str(), nullptr, 16);
+        strIdx += 2;
+    }
+
+    return uuid;
+}
+
+Uuid Uuid::Uuid4()
+{
+    // Make new uuid
+    Uuid uuid;
+
+    // Create the random engine and distribution
+    static auto rand = detail::SeededRandomEngine();
+    static std::uniform_int_distribution<Uuid::Byte> dist;
+
+    // Generate random bytes
+    for (auto& v : uuid.buffer_) {
+        v = dist(rand);
+    }
+
+    // Set the v4 bit fields: https://www.cryptosys.net/pki/Uuid.c.html
+    uuid.buffer_[6] = 0x40u | (uuid.buffer_[6] & 0xfu);
+    uuid.buffer_[8] = 0x80u | (uuid.buffer_[8] & 0x3fu);
+
+    return uuid;
+}
+
+Uuid UniquelyIdentifiable::uuid() const { return uuid_; }
+
+void UniquelyIdentifiable::setUuid(const Uuid& uuid) { uuid_ = uuid; }
+
+}  // namespace smgl

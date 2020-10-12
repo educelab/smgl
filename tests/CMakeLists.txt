@@ -1,9 +1,10 @@
-include(FetchContent)
-
+## Google Test ##
 FetchContent_Declare(
     googletest
     GIT_REPOSITORY https://github.com/google/googletest.git
     GIT_TAG release-1.10.0
+    CMAKE_CACHE_ARGS
+        -DINSTALL_GTEST:BOOL=OFF
 )
 
 FetchContent_GetProperties(googletest)
@@ -13,9 +14,22 @@ if(NOT googletest_POPULATED)
     add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR} EXCLUDE_FROM_ALL)
 endif()
 
-# Build the tests
+## Test Library ##
+add_library(testlib INTERFACE)
+add_library(smgl::testlib ALIAS testlib)
+target_include_directories(testlib
+    INTERFACE
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+)
+target_link_libraries(testlib INTERFACE smgl::smgl)
+
+## Build the tests ##
 set(tests
     src/TestPorts.cpp
+    src/TestNode.cpp
+    src/TestGraph.cpp
+    src/TestSingleton.cpp
+    src/TestUuid.cpp
 )
 
 foreach(src ${tests})
@@ -23,7 +37,8 @@ foreach(src ${tests})
     set(testname smeagol_${filename})
     add_executable(${testname} ${src})
     target_link_libraries(${testname}
-        smeagol::smeagol
+        smgl::smgl
+        smgl::testlib
         gtest_main
         gmock_main
     )

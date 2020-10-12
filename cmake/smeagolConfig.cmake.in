@@ -1,0 +1,13 @@
+include(CMakeFindDependencyMacro)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_LIST_DIR}/Modules/")
+
+find_dependency(nlohmann_json 3.9.1 QUIET REQUIRED)
+
+if(@SMGL_USE_BOOSTFS@)
+    find_package(Boost 1.58 QUIET REQUIRED COMPONENTS system filesystem)
+    add_compile_definitions(SMGL_USE_BOOSTFS)
+else()
+    find_dependency(Filesystem QUIET REQUIRED)
+endif()
+
+include("${CMAKE_CURRENT_LIST_DIR}/smeagolTargets.cmake")

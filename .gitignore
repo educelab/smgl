@@ -1,4 +1,3 @@
-*.iconset/
 bin/
 flycheck*
 *.o

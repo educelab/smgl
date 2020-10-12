@@ -1,0 +1,19 @@
+/**
+ * @namespace std
+ * @brief ISO C++ top-level namespace
+ */
+
+/**
+ * @namespace smgl
+ * @brief Project top-level namespace
+ */
+
+/**
+ * @namespace smgl::policy
+ * @brief Template policies namespace
+ */
+
+/**
+ * @namespace smgl::detail
+ * @brief Implementation details namespace
+ */
