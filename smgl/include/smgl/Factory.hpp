@@ -3,6 +3,7 @@
 /** @file */
 
 #include <exception>
+#include <functional>
 
 namespace smgl
 {

@@ -1,3 +1,5 @@
+#include "smgl/Uuid.hpp"
+
 #include <algorithm>
 #include <array>
 #include <iomanip>
@@ -5,8 +7,7 @@
 #include <regex>
 #include <sstream>
 
-namespace smgl
-{
+using namespace smgl;
 
 namespace detail
 {
@@ -113,5 +114,3 @@ Uuid Uuid::Uuid4()
 Uuid UniquelyIdentifiable::uuid() const { return uuid_; }
 
 void UniquelyIdentifiable::setUuid(const Uuid& uuid) { uuid_ = uuid; }
-
-}  // namespace smgl

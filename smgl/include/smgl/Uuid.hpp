@@ -93,5 +93,3 @@ struct hash<smgl::Uuid> {
     }
 };
 }  // namespace std
-
-#include "smgl/UuidImpl.hpp"
