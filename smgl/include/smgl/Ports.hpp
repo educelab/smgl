@@ -4,6 +4,7 @@
 
 #include <chrono>
 #include <exception>
+#include <functional>
 #include <tuple>
 #include <unordered_map>
 #include <vector>

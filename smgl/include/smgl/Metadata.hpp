@@ -18,5 +18,3 @@ void WriteMetadata(const filesystem::path& path, const Metadata& m);
 Metadata LoadMetadata(const filesystem::path& path);
 
 }  // namespace smgl
-
-#include "smgl/MetadataImpl.hpp"

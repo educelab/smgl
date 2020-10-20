@@ -1,10 +1,9 @@
 ![smeagol](./graphics/svg/text-sub-color.svg)
 
-**smeagol** is a header-only C++14 library for creating custom dataflow 
-pipelines that are instrumented for serialization. It was designed to make it 
-easy to convert existing processing workflows into **repeatable** and 
-**observable** pipelines for the purposes of experimental reporting, 
-reliability, and validation.
+**smeagol** is a C++14 library for creating custom dataflow pipelines that are 
+instrumented for serialization. It was designed to make it easy to convert 
+existing processing workflows into **repeatable** and **observable** pipelines 
+for the purposes of experimental reporting, reliability, and validation.
 
 ## Requirements
 - CMake 3.15+
@@ -18,8 +17,7 @@ reliability, and validation.
 
 ## Build and Installation
 ### CMake
-As a header-only library, this project does not need to be built, but it is 
-easiest to install it using the CMake build system:
+This project is built and installed using the CMake build system:
 
 ```shell
 mkdir build
@@ -28,8 +26,8 @@ cmake ..
 make && make install
 ```
 
-This will install the headers to your default system include path, and provide 
-an easy method to include the smeagol headers in your own CMake project:
+This will install the headers and library to your default system path and 
+provide an easy method to link smeagol against your own CMake project:
 
 ```cmake
 # Find smeagol libraries
@@ -149,7 +147,7 @@ auto gClone = smgl::Graph::Load("Graph.json");
 ```
 
 ## Related Projects
-This library is not meant for everyone. It's primary purpose is to build 
+This library is not meant for everyone. Its primary purpose is for building 
 workflows that are instrumented with metadata, but there are many other use 
 cases for dataflow libraries. If smeagol doesn't fit your needs, perhaps on of
 these libraries will:
