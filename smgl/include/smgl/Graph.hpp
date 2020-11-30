@@ -2,6 +2,7 @@
 
 /** @file */
 
+#include <memory>
 #include <unordered_map>
 #include <vector>
 
@@ -13,11 +14,25 @@ namespace smgl
 {
 
 /**
+ * @enum smgl::CacheType
+ * @brief Cache Location Type
+ */
+enum class CacheType {
+    /** Cache directory is the cache file's parent directory */
+    Adjacent = 0,
+    /** Cache directory is a subdirectory derived from the cache filename */
+    Subdirectory
+};
+
+/**
  * @brief A collection of Nodes for managing pipeline state and serialization
  */
 class Graph : public UniquelyIdentifiable
 {
 public:
+    /** Graph version */
+    constexpr static uint32_t Version{1};
+
     /** Graph update status */
     enum class Status { Idle, Updating, Error };
 
@@ -26,6 +41,10 @@ public:
 
     /** @brief Add a Node to the Graph */
     void insertNode(const Node::Pointer& n);
+
+    /** @brief Construct a Node and add it to the graph */
+    template <typename NodeType, typename... Args>
+    std::shared_ptr<NodeType> insertNode(Args... args);
 
     /** @brief Add one or more Nodes to the Graph */
     template <typename N, typename... Ns>
@@ -38,32 +57,53 @@ public:
     Status status() const;
 
     /**
-     * @brief Get the root cache directory for the Graph
+     * @brief Get the root cache file for the Graph
      *
      * If cacheEnabled() is true, Nodes are allowed to write data to a unique
-     * subdirectory inside cacheDir. If cacheDir() is empty, the current working
-     * directory will be used as the cache root.
+     * subdirectory in cacheDir(). The exact location is relative to cacheFile()
+     * and is determined by setCacheType().
+     */
+    filesystem::path cacheFile() const;
+
+    /**
+     * @brief Set the root cache file for the Graph
+     *
+     * @copydetails cacheFile()
+     */
+    void setCacheFile(const filesystem::path& p);
+
+    /**
+     * @brief Get the graph's CacheType
+     *
+     * A graph's CacheType determines the location of the cache relative to
+     * cacheFile().
+     */
+    CacheType cacheType() const;
+
+    /**
+     * @brief Set the graph's CacheType
+     *
+     * @copydetails cacheType()
+     */
+    void setCacheType(CacheType t);
+
+    /**
+     * @brief Returns the cache directory as configured by cacheFile() and
+     * cacheType()
      */
     filesystem::path cacheDir() const;
 
     /**
-     * @brief Set the root cache directory for the Graph
-     *
-     * @copydetails cacheDir()
-     */
-    void setCacheDir(const filesystem::path& dir);
-
-    /**
      * @brief Whether or not graph caching is enabled
      *
-     * @copydetails cacheDir()
+     * @copydetails cacheFile()
      */
     bool cacheEnabled() const;
 
     /**
      * @brief Set whether or not graph caching is enabled
      *
-     * @copydetails cacheDir()
+     * @copydetails cacheFile()
      */
     void setEnableCache(bool enable);
 
@@ -75,14 +115,25 @@ public:
     Status update();
 
     /**
+     * @brief Serialize a Graph to a Metadata object
+     *
+     * @warning This function honors the value of cacheEnabled() and will write
+     * data to cacheDir().
+     */
+    static Metadata Serialize(const Graph& g);
+
+    /**
      * @brief Save a Graph to a JSON file
      *
-     * @copydetails cacheDir()
+     * If writeCache is true, cache information will be written adjacent to
+     * the provided path honoring the cacheType() configuration.
      *
      * @param path Path to output file
      * @param g Graph to be saved
+     * @param writeCache Whether or not to write cache files
      */
-    static void Save(const filesystem::path& path, const Graph& g);
+    static void Save(
+        const filesystem::path& path, const Graph& g, bool writeCache = false);
 
     /**
      * @brief Load a Graph from a JSON file
@@ -105,14 +156,23 @@ public:
     static std::vector<Node::Pointer> Schedule(const Graph& g);
 
 private:
-    /** Cache directory */
-    filesystem::path cacheDir_;
+    /** Cache file */
+    filesystem::path cacheFile_;
+    /** Cache type */
+    CacheType cacheType_{CacheType::Subdirectory};
     /** Cache enabled status */
     bool cache_enabled_{false};
     /** List of Graph's nodes */
     std::unordered_map<Uuid, Node::Pointer> nodes_;
     /** Graph's update status */
     Status status_{Status::Idle};
+
+    /** Perform graph serialization */
+    static Metadata Serialize(
+        const Graph& g, bool useCache, const filesystem::path& cacheDir);
+
+    /** Friend function: Graphviz::WriteDotFile */
+    friend void WriteDotFile(const filesystem::path& path, const Graph& g);
 };
 
 }  // namespace smgl

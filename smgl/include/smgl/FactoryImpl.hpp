@@ -1,4 +1,3 @@
-
 namespace smgl
 {
 namespace policy
@@ -121,6 +120,30 @@ std::vector<I> Factory<B, I, A, P, E>::GetRegisteredIdentifiers() const
         keys.push_back(t.first);
     }
     return keys;
+}
+
+template <
+    class B,
+    typename I,
+    class A,
+    typename P,
+    template <typename, class>
+    class E>
+bool Factory<B, I, A, P, E>::IsRegistered(const IDType& id)
+{
+    return idToCreatorMap_.find(id) != idToCreatorMap_.end();
+}
+
+template <
+    class B,
+    typename I,
+    class A,
+    typename P,
+    template <typename, class>
+    class E>
+bool Factory<B, I, A, P, E>::IsRegistered(const std::type_info& info)
+{
+    return typeToIDMap_.find(info.hash_code()) != typeToIDMap_.end();
 }
 
 }  // namespace detail

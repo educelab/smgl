@@ -3,6 +3,7 @@
 /** @file */
 
 #include <functional>
+#include <map>
 #include <memory>
 #include <unordered_map>
 #include <vector>
@@ -73,6 +74,16 @@ public:
     /** Pointer type */
     using Pointer = std::shared_ptr<Node>;
 
+    /** Port info type */
+    struct Info {
+        /** Constructor */
+        Info(std::string n, const Uuid& u) : name{std::move(n)}, uuid{u} {}
+        /** Registered name with parent Node */
+        std::string name;
+        /** Port UUID */
+        Uuid uuid;
+    };
+
     /**
      * @brief Update the Node
      *
@@ -106,6 +117,12 @@ public:
      */
     void deserialize(const Metadata& meta, const filesystem::path& cacheRoot);
 
+    /** @brief Get registered InputPort info */
+    std::vector<Info> getInputPortsInfo() const;
+
+    /** @brief Get registered OutputPort info */
+    std::vector<Info> getOutputPortsInfo() const;
+
     /**
      * @brief Get a registered InputPort by Uuid
      * @throws std::out_of_range if Uuid not registered with Node
@@ -116,6 +133,7 @@ public:
      * @throws std::out_of_range if name not registered with Node
      */
     Input& getInputPort(const std::string& name);
+
     /**
      * @brief Get a registered OutputPort by Uuid
      * @throws std::out_of_range if Uuid not registered with Node
@@ -295,17 +313,17 @@ private:
         const std::string& name,
         const Metadata& data,
         std::unordered_map<Uuid, PortType*>& byUuid,
-        std::unordered_map<std::string, PortType*>& byName);
+        std::map<std::string, PortType*>& byName);
 
     /** Stores registered inputs by Uuid */
     std::unordered_map<Uuid, Input*> inputs_by_uuid_;
     /** Stores registered inputs by registered name */
-    std::unordered_map<std::string, Input*> inputs_by_name_;
+    std::map<std::string, Input*> inputs_by_name_;
     /** Stores registered outputs by Uuid */
     std::unordered_map<Uuid, Output*> outputs_by_uuid_;
     /** Stores registered outputs by registered name */
-    std::unordered_map<std::string, Output*> outputs_by_name_;
-    /** Curent Node status */
+    std::map<std::string, Output*> outputs_by_name_;
+    /** Current Node status */
     Status status_{Status::Idle};
 };
 
@@ -384,6 +402,15 @@ std::string NodeName(const Node::Pointer& node);
 
 /** @copydoc NodeName() */
 std::string NodeName(const Node* node);
+
+/** Check whether a name has been registered for a Node type */
+bool IsRegistered(const std::string& name);
+
+/** Check whether a Node's type has been registered */
+bool IsRegistered(const Node::Pointer& node);
+
+/** Check whether a Node's type has been registered */
+bool IsRegistered(const Node* node);
 
 }  // namespace smgl
 

@@ -3,11 +3,27 @@
 #include <vector>
 
 #include "smgl/Graph.hpp"
+#include "smgl/Metadata.hpp"
 #include "smgl/TestLib.hpp"
 #include "smgl/filesystem.hpp"
 
 using namespace smgl;
 namespace fs = smgl::filesystem;
+
+inline std::string LoadCachedValue(const fs::path& p, const std::string& uuid)
+{
+    auto m = LoadMetadata(p);
+    fs::path cacheDir = m["cacheDir"].get<std::string>();
+    if (cacheDir.is_relative()) {
+        cacheDir = p.parent_path() / cacheDir;
+    }
+    auto valuePath =
+        m["nodes"][uuid]["data"]["cacheFile"].get<std::string>();
+    std::ifstream f((cacheDir / uuid / valuePath).string());
+    std::string res;
+    std::getline(f, res);
+    return res;
+}
 
 TEST(Graph, BasicGraph)
 {
@@ -138,48 +154,62 @@ TEST(Graph, ComplexGraph)
 
 TEST(Graph, BasicCachingGraph)
 {
+    // Setup nodes
+    using SourceNode = test::ClassWrapperNode<std::string>;
+    using CacheNode = test::StringCachingNode;
+
+    // Caching and serialization requires node registration
+    RegisterNode<SourceNode>("smgl::test::ClassWrapperNode<std::string>");
+    RegisterNode<CacheNode>();
+
+    // Set cache file
+    fs::path cacheFile{"BasicCachingGraph.json"};
+
+    // Build graph
+    Graph graph;
+    graph.setEnableCache(true);
+    graph.setCacheFile(cacheFile);
+
     // Cleanup old cache dir
-    fs::path cacheDir{"BasicCachingGraph/"};
+    auto cacheDir = graph.cacheDir();
     if (fs::exists(cacheDir)) {
         for (const auto& entry : fs::directory_iterator(cacheDir)) {
             fs::remove_all(entry);
         }
     }
 
-    // Setup nodes
-    using SourceNode = test::ClassWrapperNode<std::string>;
-    using CacheNode = test::StringCachingNode;
-
-    // Caching and serializtion requires node registration
-    RegisterNode<SourceNode>("smgl::test::ClassWrapperNode<std::string>");
-    RegisterNode<CacheNode>();
-
     // Create nodes
-    auto src = std::make_shared<SourceNode>();
-    auto cache = std::make_shared<CacheNode>();
+    auto src = graph.insertNode<SourceNode>();
 
-    // Build graph
-    Graph graph;
-    graph.setCacheDir(cacheDir);
-    graph.setEnableCache(true);
-    graph.insertNodes(src, cache);
-    connect(src->get, cache->value);
+    auto cache = std::make_shared<CacheNode>();
+    std::string uuid("00000000-1111-2222-3333-444444444444");
+    cache->setUuid(Uuid::FromString(uuid));
+    graph.insertNode(cache);
+
+    // Connect nodes
+    src->get >> cache->value;
 
     // Post a starting value
     src->set("Starting value");
     graph.update();
 
+    // Check that the cached value matches
+    EXPECT_EQ(LoadCachedValue(cacheFile, uuid), src->get());
+
     // Post an update
     src->set("Second value");
     graph.update();
+
+    // Check that the cached value matches
+    EXPECT_EQ(LoadCachedValue(cacheFile, uuid), src->get());
 
     // Post an update we don't want cached
     src->set("Shouldn't be cached in StringCacheNode");
     graph.setEnableCache(false);
     graph.update();
 
-    // Write final graph
-    Graph::Save(cacheDir / "BasicCachingGraph.json", graph);
+    // Check that the cached value matches
+    EXPECT_NE(LoadCachedValue(cacheFile, uuid), src->get());
 
     // Cleanup registration
     DeregisterNode<SourceNode>();
@@ -192,7 +222,7 @@ TEST(Graph, SerializationDeserialization)
     using SourceNode = test::ClassWrapperNode<int>;
     using SumOpNode = test::AdditionNode<int>;
 
-    // Caching and serializtion requires node registration
+    // Caching and serialization requires node registration
     RegisterNode<SourceNode>();
     RegisterNode<SumOpNode>();
 
@@ -250,18 +280,18 @@ TEST(Graph, Scheduling)
     using SourceNode = test::ClassWrapperNode<int>;
     using SumOpNode = test::AdditionNode<int>;
 
+    // Build graph
+    Graph g;
+
     // Create nodes
-    auto lhs = std::make_shared<SourceNode>();
-    auto rhs = std::make_shared<SourceNode>();
-    auto sumOp = std::make_shared<SumOpNode>();
+    auto lhs = g.insertNode<SourceNode>();
+    auto rhs = g.insertNode<SourceNode>();
 
     // Generate UUID for our final node so we can identify it
     auto finalID = Uuid::FromString("00000000-1111-2222-3333-444444444444");
+    auto sumOp = std::make_shared<SumOpNode>();
     sumOp->setUuid(finalID);
-
-    // Build graph
-    Graph g;
-    g.insertNodes(sumOp, rhs, lhs);
+    g.insertNode(sumOp);
 
     // Setup connections
     lhs->set(1);

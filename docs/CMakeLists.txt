@@ -16,6 +16,7 @@ set(DOXYGEN_QUIET YES)
 doxygen_add_docs(
     docs
     ${PROJECT_SOURCE_DIR}/README.md
+    ${PROJECT_SOURCE_DIR}/CONTRIBUTING.md
     ${PROJECT_SOURCE_DIR}/docs/Modules.dox
     ${PROJECT_SOURCE_DIR}/smgl/include/
     COMMENT "Generate Doxygen documentation"
