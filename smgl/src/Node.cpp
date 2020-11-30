@@ -86,6 +86,25 @@ Output& Node::getOutputPort(const std::string& name)
     return *outputs_by_name_.at(name);
 }
 
+std::vector<Node::Info> Node::getInputPortsInfo() const
+{
+
+    std::vector<Info> info;
+    for (const auto& n : inputs_by_name_) {
+        info.emplace_back(n.first, n.second->uuid());
+    }
+    return info;
+}
+
+std::vector<Node::Info> Node::getOutputPortsInfo() const
+{
+    std::vector<Info> info;
+    for (const auto& n : outputs_by_name_) {
+        info.emplace_back(n.first, n.second->uuid());
+    }
+    return info;
+}
+
 std::vector<Connection> Node::getInputConnections() const
 {
     std::vector<Connection> cns;
@@ -214,4 +233,25 @@ std::string smgl::NodeName(const Node* node)
         throw std::invalid_argument("node is a nullptr");
     }
     return detail::NodeFactoryType::Instance().GetTypeIdentifier(typeid(*node));
+}
+
+bool smgl::IsRegistered(const std::string& name)
+{
+    return detail::NodeFactoryType::Instance().IsRegistered(name);
+}
+bool smgl::IsRegistered(const Node::Pointer& node)
+{
+    if (node == nullptr) {
+        throw std::invalid_argument("node is a nullptr");
+    }
+    auto& n = *node.get();
+    return detail::NodeFactoryType::Instance().IsRegistered(typeid(n));
+}
+
+bool smgl::IsRegistered(const Node* node)
+{
+    if (node == nullptr) {
+        throw std::invalid_argument("node is a nullptr");
+    }
+    return detail::NodeFactoryType::Instance().IsRegistered(typeid(*node));
 }

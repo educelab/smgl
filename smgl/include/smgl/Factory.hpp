@@ -83,6 +83,12 @@ public:
     /** Deregister type using identifier */
     bool Deregister(const IDType& id);
 
+    /** Check whether given ID is registered to a type */
+    bool IsRegistered(const IDType& id);
+
+    /** Check whether a given type has been registered */
+    bool IsRegistered(const std::type_info& info);
+
     /** Create AbstractProduct from registered identifier */
     AbstractProduct CreateObject(const IDType& id);
 

@@ -6,6 +6,17 @@
 #include "smgl/Uuid.hpp"
 
 using namespace smgl;
+namespace fs = filesystem;
+
+inline fs::path CacheDir(const fs::path& json, CacheType t)
+{
+    switch (t) {
+        case CacheType::Adjacent:
+            return json.parent_path();
+        case CacheType::Subdirectory:
+            return json.parent_path() / (json.stem().string() + "_cache");
+    }
+}
 
 Node::Pointer Graph::operator[](const Uuid& uuid) const
 {
@@ -27,9 +38,22 @@ void Graph::removeNode(const Node::Pointer& n)
 
 Graph::Status Graph::status() const { return status_; }
 
-filesystem::path Graph::cacheDir() const { return cacheDir_; }
+fs::path Graph::cacheFile() const
+{
+    if (cacheFile_.empty()) {
+        return uuid().string() + ".json";
+    } else {
+        return cacheFile_;
+    }
+}
 
-void Graph::setCacheDir(const filesystem::path& dir) { cacheDir_ = dir; }
+void Graph::setCacheFile(const fs::path& p) { cacheFile_ = p; }
+
+CacheType Graph::cacheType() const { return cacheType_; }
+
+void Graph::setCacheType(CacheType t) { cacheType_ = t; }
+
+fs::path Graph::cacheDir() const { return CacheDir(cacheFile(), cacheType_); }
 
 bool Graph::cacheEnabled() const { return cache_enabled_; }
 
@@ -45,6 +69,17 @@ Graph::Status Graph::update()
     // Schedule nodes
     auto schedule = Schedule(*this);
 
+    // Setup the cache info
+    auto cacheJson = cacheFile();
+    auto cacheDir = CacheDir(cacheJson, cacheType_);
+
+    // Write the graph starting state
+    Metadata meta;
+    if (cache_enabled_) {
+        meta = Serialize(*this, cache_enabled_, cacheDir);
+        WriteMetadata(cacheJson, meta);
+    }
+
     // Execute our schedule
     status_ = Status::Updating;
     for (auto& n : schedule) {
@@ -55,8 +90,9 @@ Graph::Status Graph::update()
             // Write to cache
             if (cache_enabled_) {
                 // Write to the cache
-                // TODO: Write the metadata on disk
-                n->serialize(cache_enabled_, cacheDir_);
+                auto uuid = n->uuid().string();
+                meta["nodes"][uuid] = n->serialize(cache_enabled_, cacheDir);
+                WriteMetadata(cacheJson, meta);
             }
         } else if (
             status == Node::Status::Waiting or
@@ -70,31 +106,36 @@ Graph::Status Graph::update()
     return status_;
 }
 
-void Graph::Save(const filesystem::path& path, const Graph& g)
+Metadata Graph::Serialize(const Graph& g)
 {
-    namespace fs = filesystem;
+    return Serialize(g, g.cache_enabled_, CacheDir(g.cacheFile_, g.cacheType_));
+}
 
+Metadata Graph::Serialize(
+    const Graph& g, bool useCache, const fs::path& cacheDir)
+{
     Metadata meta{
         {"software", "smgl"},
         {"type", "graph"},
-        {"version", "1"},
+        {"version", Graph::Version},
         {"uuid", g.uuid().string()}};
 
-    fs::path cacheRoot;
-    if (g.cacheDir_.empty() or fs::weakly_canonical(path.parent_path()) ==
-                                   fs::weakly_canonical(g.cacheDir_)) {
-        cacheRoot = path.parent_path();
-    } else {
-        cacheRoot = g.cacheDir_;
-        meta["cacheDir"] = g.cacheDir_.string();
+    if (useCache) {
+        switch (g.cacheType_) {
+            case CacheType::Adjacent:
+                meta["cacheDir"] = ".";
+                break;
+            case CacheType::Subdirectory:
+                meta["cacheDir"] = cacheDir.filename().string();
+                break;
+        }
     }
 
     Metadata connections = Metadata::array();
     for (const auto& n : g.nodes_) {
         // Write node metadata
         auto uuid = n.first.string();
-        meta["nodes"].push_back(
-            n.second->serialize(g.cache_enabled_, cacheRoot));
+        meta["nodes"][uuid] = n.second->serialize(useCache, cacheDir);
 
         // Accumulate connections metadata
         for (const auto& c : n.second->getOutputConnections()) {
@@ -113,10 +154,18 @@ void Graph::Save(const filesystem::path& path, const Graph& g)
     }
     meta["connections"] = connections;
 
+    return meta;
+}
+
+void Graph::Save(const fs::path& path, const Graph& g, bool writeCache)
+{
+    // Construct the metadata
+    auto meta = Serialize(g, writeCache, CacheDir(path, g.cacheType_));
+
     WriteMetadata(path, meta);
 }
 
-Graph Graph::Load(const filesystem::path& path)
+Graph Graph::Load(const fs::path& path)
 {
     namespace fs = filesystem;
 
@@ -133,25 +182,28 @@ Graph Graph::Load(const filesystem::path& path)
 
     // Setup a new graph
     Graph g;
+    g.cacheFile_ = path;
 
     // Load the cache directory
+    fs::path cacheDir;
     if (meta.contains("cacheDir")) {
-        g.cacheDir_ = meta["cacheDir"].get<std::string>();
+        cacheDir = meta["cacheDir"].get<std::string>();
     } else {
-        g.cacheDir_ = path.parent_path();
+        cacheDir = path.parent_path();
     }
 
     // Load the graph UUID
     g.uuid_ = Uuid::FromString(meta["uuid"].get<std::string>());
 
     // Load the nodes
-    for (auto& nodeMeta : meta["nodes"]) {
+    for (auto& node : meta["nodes"].items()) {
+        auto nodeMeta = node.value();
         // Construct the node
         auto type = nodeMeta["type"].get<std::string>();
         auto n = CreateNode(type);
 
         // Load the node state
-        n->deserialize(nodeMeta, g.cacheDir_);
+        n->deserialize(nodeMeta, cacheDir);
 
         // Add to the graph
         g.insertNode(n);

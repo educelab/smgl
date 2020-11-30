@@ -1,6 +1,14 @@
 namespace smgl
 {
 
+template <typename NodeType, typename... Args>
+std::shared_ptr<NodeType> Graph::insertNode(Args... args)
+{
+    auto n = std::make_shared<NodeType>(std::forward<Args>(args)...);
+    insertNode(n);
+    return n;
+}
+
 template <typename N, typename... Ns>
 void Graph::insertNodes(N& n0, Ns&&... nodes)
 {

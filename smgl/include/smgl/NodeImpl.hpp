@@ -8,7 +8,7 @@ void Node::LoadAndRegisterPort(
     const std::string& name,
     const Metadata& data,
     std::unordered_map<Uuid, PortType*>& byUuid,
-    std::unordered_map<std::string, PortType*>& byName)
+    std::map<std::string, PortType*>& byName)
 {
     // Get old port info
     auto* port = byName[name];

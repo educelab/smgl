@@ -19,6 +19,7 @@ set(public_hdrs
 # Source files
 set(srcs
     src/Graph.cpp
+    src/Graphviz.cpp
     src/Metadata.cpp
     src/Node.cpp
     src/Ports.cpp
