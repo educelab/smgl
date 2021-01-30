@@ -2,7 +2,6 @@ include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
     smeagolConfigVersion.cmake
     COMPATIBILITY AnyNewerVersion
-    ARCH_INDEPENDENT
 )
 configure_file(cmake/smeagolConfig.cmake.in smeagolConfig.cmake @ONLY)
 
