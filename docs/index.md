@@ -1,11 +1,9 @@
-[![smeagol](graphics/logo/svg/text-sub-color.svg)](https://gitlab.com/educelab/smeagol)
-
-**smeagol** is a C++14 library for creating custom dataflow pipelines that are 
-instrumented for serialization. It was designed to make it easy to convert 
-existing processing workflows into **repeatable** and **observable** pipelines 
+**smeagol** is a C++14 library for creating custom dataflow pipelines that are
+instrumented for serialization. It was designed to make it easy to convert
+existing processing workflows into **repeatable** and **observable** pipelines
 for the purposes of experimental reporting, reliability, and validation.
 
-[[_TOC_]]
+View the latest source code on [GitLab](https://gitlab.com/educelab/smeagol).
 
 ## Requirements
 - CMake 3.15+
@@ -21,17 +19,17 @@ for the purposes of experimental reporting, reliability, and validation.
 ### CMake
 This project is built and installed using the CMake build system:
 
-```shell
+```{.sh}
 mkdir build
 cd build/
 cmake ..
 make && make install
 ```
 
-This will install the headers and library to your default system path and 
+This will install the headers and library to your default system path and
 provide an easy method to link smeagol against your own CMake project:
 
-```cmake
+```
 # Find smeagol libraries
 find_package(smeagol REQUIRED)
 
@@ -41,18 +39,18 @@ target_link_libraries(MyTarget smgl::smgl)
 ```
 
 The CMake project provides a number of flags for configuring the build:
- - `SMGL_BUILD_JSON`: Use an in-source build of the JSON library during 
-    compilation. (Default: ON)
- - `SMGL_USE_BOOSTFS`: Use the `Boost::filesystem` library instead of
-    `std::filesystem`. (Default: ON if `std::filesystem` is not found)
- - `SMGL_BUILD_TESTS`: Build project unit tests. This will download and build 
-    the Google Test framework. (Default: OFF) 
- - `SMGL_BUILD_DOCS`: Build documentation. Dependencies: Doxygen, Graphviz
-    (optional). (Default: ON if Doxygen is found)
+- `SMGL_BUILD_JSON`: Use an in-source build of the JSON library during
+  compilation. (Default: ON)
+- `SMGL_USE_BOOSTFS`: Use the `Boost::filesystem` library instead of
+  `std::filesystem`. (Default: ON if `std::filesystem` is not found)
+- `SMGL_BUILD_TESTS`: Build project unit tests. This will download and build
+  the Google Test framework. (Default: OFF)
+- `SMGL_BUILD_DOCS`: Build documentation. Dependencies: Doxygen, Graphviz
+  (optional). (Default: ON if Doxygen is found)
 
 ## Usage
 ### Building Custom Nodes
-```c++
+```{.cpp}
 #include <smgl/Node.hpp>
 #include <smgl/Ports.hpp>
 
@@ -99,7 +97,7 @@ private:
 ```
 
 ### Building Graphs
-```c++
+```{.cpp}
 #include <smgl/Graph.hpp> // smgl::graph
 #include "MyNodes.hpp" // SumNode, MultiplyNode
 
@@ -129,22 +127,22 @@ std::cout << multOp->result() << std::endl; // 12
 ```
 
 ### Serialization
-Smeagol supports two different methods of graph serialization. 
-**Explicit serialization** writes the graph state to disk when explicitly 
-requested by a call to `Graph::Save`. **Automatic caching** writes the graph 
-state to disk when `Graph::update` is called and continuously updates the 
-cache file as Nodes complete execution. For both methods, Nodes must be 
+Smeagol supports two different methods of graph serialization.
+**Explicit serialization** writes the graph state to disk when explicitly
+requested by a call to `Graph::Save`. **Automatic caching** writes the graph
+state to disk when `Graph::update` is called and continuously updates the
+cache file as Nodes complete execution. For both methods, Nodes must be
 registered with the Node factory in order for serialization to work correctly.
 
 #### Explicit serialization
-This example demonstrates writing the graph state to disk a single time using 
-`Graph::Save`. This will write all nodes, connections, and intermediate results 
-to disk. The location of the intermediate results relative to the provided 
-JSON file path is controlled by `Graph::setCacheType`. To only write the JSON 
-file and not the intermediate results, omit the optional `writeCache` argument 
+This example demonstrates writing the graph state to disk a single time using
+`Graph::Save`. This will write all nodes, connections, and intermediate results
+to disk. The location of the intermediate results relative to the provided
+JSON file path is controlled by `Graph::setCacheType`. To only write the JSON
+file and not the intermediate results, omit the optional `writeCache` argument
 to `Graph::Save`.
 
-```c++
+```{.cpp}
 #include <smgl/Graph.hpp>
 
 // Register nodes for serialization
@@ -166,12 +164,12 @@ auto gClone = smgl::Graph::Load("Graph.json");
 ```
 
 #### Automatic caching
-This example illustrates writing the graph to disk repeatedly as the nodes are 
-updated. This will write all nodes, connections, and intermediate results to 
-disk. The location of the intermediate results relative to the cache file path 
+This example illustrates writing the graph to disk repeatedly as the nodes are
+updated. This will write all nodes, connections, and intermediate results to
+disk. The location of the intermediate results relative to the cache file path
 is controlled by `Graph::setCacheType`.
 
-```c++
+```{.cpp}
 #include <smgl/Graph.hpp>
 
 // Register nodes for serialization
@@ -197,12 +195,12 @@ auto gClone = smgl::Graph::Load("CachedGraph.json");
 ```
 
 ### Graph Visualization
-Smeagol supports basic graph visualization by writing Dot files compatible with 
+Smeagol supports basic graph visualization by writing Dot files compatible with
 the [Graphviz](https://graphviz.org/) software library. Use `smgl::WriteDotFile`
 to write a graph to disk, and then use `dot` to convert this file into an image.
 
 Write the graph to a dot file:
-```c++
+```{.cpp}
 #include <smgl/Graphviz.hpp>
 
 // Register all node types.
@@ -216,22 +214,16 @@ smgl::WriteDotFile("graph.gv", g);
 ```
 
 Use `dot` to convert the dot file to an image:
-```shell 
+```{.sh}
 $ dot -Tpng -o graphviz.png graph.gv
 ```
 
 #### Example visualization
 ![Basic Graph Visualization](graphics/examples/graphviz.png)
 
-## Documentation
-Visit our full library documentation [here](https://educelab.gitlab.io/smeagol/docs/).
-
-## Contributing
-Please see [CONTRIBUTING.md](CONTRIBUTING.md) for more information.
-
 ## Related Projects
-This library is not meant for everyone. Its primary purpose is for building 
-workflows that are instrumented with metadata, but there are many other use 
+This library is not meant for everyone. Its primary purpose is for building
+workflows that are instrumented with metadata, but there are many other use
 cases for dataflow libraries. If smeagol doesn't fit your needs, perhaps on of
 these libraries will:
 - [RaftLib](https://github.com/RaftLib/RaftLib)
