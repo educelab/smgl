@@ -13,10 +13,10 @@
 namespace smgl
 {
 
-/**
- * @enum smgl::CacheType
- * @brief Cache Location Type
- */
+// Pre-declare for Graphviz
+class GraphStyle;
+
+/** @brief Cache Location Type */
 enum class CacheType {
     /** Cache directory is the cache file's parent directory */
     Adjacent = 0,
@@ -171,8 +171,9 @@ private:
     static Metadata Serialize(
         const Graph& g, bool useCache, const filesystem::path& cacheDir);
 
-    /** Friend function: Graphviz::WriteDotFile */
-    friend void WriteDotFile(const filesystem::path& path, const Graph& g);
+    /** Friend function: Graphviz WriteDotFile */
+    friend void WriteDotFile(
+        const filesystem::path& path, const Graph& g, const GraphStyle& style);
 };
 
 }  // namespace smgl
