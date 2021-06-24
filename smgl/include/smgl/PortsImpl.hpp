@@ -53,6 +53,20 @@ void InputPort<T>::operator()(T v, bool immediate)
     post(v, immediate);
 }
 
+template <typename T>
+InputPort<T>& InputPort<T>::operator=(T v)
+{
+    post(v, false);
+    return *this;
+}
+
+template <typename T>
+InputPort<T>& InputPort<T>::operator=(Output& op)
+{
+    smgl::connect(op, *this);
+    return *this;
+}
+
 // Update target with most recent compute
 template <typename T>
 bool InputPort<T>::update()

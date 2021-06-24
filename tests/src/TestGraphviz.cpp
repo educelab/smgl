@@ -109,3 +109,38 @@ TEST(Graphviz, ComplexGraph)
     DeregisterNode<SumOp>();
     DeregisterNode<SubOp>();
 }
+
+TEST(Graphviz, GraphStyle)
+{
+    // Setup nodes
+    using IntNode = test::ClassWrapperNode<int>;
+    using FloatNode = test::ClassWrapperNode<float>;
+
+    // Register nodes
+    RegisterNode<IntNode>("IntNode");
+    RegisterNode<FloatNode>("FloatNode");
+
+    // Setup graph
+    Graph graph;
+    auto a = graph.insertNode<IntNode>();
+    auto b = graph.insertNode<IntNode>();
+    auto c = graph.insertNode<FloatNode>();
+
+    // Global style
+    GraphStyle style;
+    style.defaultStyle().base.bgcolor = "red";
+
+    // Class-specific style
+    auto className = NodeName(a);
+    style.nodeClassStyle(className).base.bgcolor = "white";
+
+    // Instance-specific style
+    style.nodeInstanceStyle(a).base.bgcolor = "blue";
+    style.nodeInstanceStyle(a).font.color = "white";
+
+    // Write the graph
+    WriteDotFile("StyledGraph.gv", graph, style);
+
+    // Cleanup
+    DeregisterNode<IntNode>();
+}

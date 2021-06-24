@@ -219,7 +219,7 @@ $ dot -Tpng -o graphviz.png graph.gv
 ```
 
 #### Example visualization
-![Basic Graph Visualization](graphics/examples/graphviz.png)
+![Basic Graph Visualization](graphviz.png)
 
 ## Related Projects
 This library is not meant for everyone. Its primary purpose is for building

@@ -139,6 +139,7 @@ class Input : public Port
 public:
     /** Get a list of port connections */
     std::vector<Connection> getConnections() const;
+
     /**
      * @brief Get the number of connections
      *
@@ -257,6 +258,12 @@ public:
 
     /** @copydoc post(T v, bool immediate = false) */
     void operator()(T v, bool immediate = false);
+
+    /** @copydoc post(T v, bool immediate = false) */
+    InputPort<T>& operator=(T v);
+
+    /** @copydoc smgl::connect() */
+    InputPort<T>& operator=(Output& op);
 
     /** @brief Update the target with the most recently posted update */
     bool update() override;

@@ -107,7 +107,34 @@ TEST(Ports, IOConnectionBasic)
     EXPECT_EQ(result, expected);
 }
 
-TEST(Ports, IOConnectionOperators)
+TEST(Ports, IOConnectionArrowOperators)
+{
+    int expected = test::FreeFnSource();
+    OutputPort<int> sourceLR(&test::FreeFnSource);
+
+    int result = 0;
+    InputPort<int> targetLR(&result);
+
+    sourceLR >> targetLR;
+    sourceLR.update();
+    EXPECT_NE(result, expected);
+    targetLR.update();
+    EXPECT_EQ(result, expected);
+
+    expected = test::FreeFnSource();
+    OutputPort<int> sourceRL(&test::FreeFnSource);
+
+    result = 0;
+    InputPort<int> targetRL(&result);
+
+    targetRL << sourceLR;
+    sourceLR.update();
+    EXPECT_NE(result, expected);
+    targetRL.update();
+    EXPECT_EQ(result, expected);
+}
+
+TEST(Ports, IOConnectionAssignmentOperator)
 {
     int expected = test::FreeFnSource();
     OutputPort<int> source(&test::FreeFnSource);
@@ -115,7 +142,7 @@ TEST(Ports, IOConnectionOperators)
     int result = 0;
     InputPort<int> target(&result);
 
-    source >> target;
+    target = source;
     source.update();
     EXPECT_NE(result, expected);
     target.update();
