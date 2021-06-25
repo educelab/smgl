@@ -5,6 +5,7 @@
 #include <functional>
 #include <map>
 #include <memory>
+#include <typeinfo>
 #include <unordered_map>
 #include <vector>
 
@@ -398,6 +399,13 @@ Node::Pointer CreateNode(const std::string& name);
  * @throws smgl::unknown_identifier if the type pointed to by node has not been
  * registered
  */
+template <class T>
+std::string NodeName()
+{
+    return detail::NodeFactoryType::Instance().GetTypeIdentifier(typeid(T));
+}
+
+/** @copydoc NodeName() */
 std::string NodeName(const Node::Pointer& node);
 
 /** @copydoc NodeName() */

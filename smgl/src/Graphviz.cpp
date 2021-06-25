@@ -69,79 +69,78 @@ NodeStyle& GraphStyle::defaultStyle() { return defaultStyle_; }
 
 const NodeStyle& GraphStyle::defaultStyle() const { return defaultStyle_; }
 
-void GraphStyle::setNodeClassStyle(
-    const std::string& name, const NodeStyle& style)
+void GraphStyle::setClassStyle(const std::string& name, const NodeStyle& style)
 {
     classStyles_[name] = style;
 }
 
-void GraphStyle::setNodeInstanceStyle(
+void GraphStyle::setInstanceStyle(
     const Node::Pointer& node, const NodeStyle& style)
 {
     instanceStyles_[node->uuid()] = style;
 }
 
-void GraphStyle::setNodeInstanceStyle(const Node* node, const NodeStyle& style)
+void GraphStyle::setInstanceStyle(const Node* node, const NodeStyle& style)
 {
     instanceStyles_[node->uuid()] = style;
 }
 
-bool GraphStyle::hasNodeClassStyle(const std::string& name) const
+bool GraphStyle::hasClassStyle(const std::string& name) const
 {
     return classStyles_.count(name) > 0;
 }
 
-void GraphStyle::eraseNodeClassStyle(const std::string& name)
+void GraphStyle::eraseClassStyle(const std::string& name)
 {
     classStyles_.erase(name);
 }
 
-bool GraphStyle::hasNodeInstanceStyle(const Node::Pointer& node) const
+bool GraphStyle::hasInstanceStyle(const Node::Pointer& node) const
 {
     return instanceStyles_.count(node->uuid()) > 0;
 }
 
-bool GraphStyle::hasNodeInstanceStyle(const Node* node) const
+bool GraphStyle::hasInstanceStyle(const Node* node) const
 {
     return instanceStyles_.count(node->uuid()) > 0;
 }
 
-NodeStyle& GraphStyle::nodeClassStyle(const std::string& name)
+NodeStyle& GraphStyle::classStyle(const std::string& name)
 {
     return classStyles_[name];
 }
 
-const NodeStyle& GraphStyle::nodeClassStyle(const std::string& name) const
+const NodeStyle& GraphStyle::classStyle(const std::string& name) const
 {
     return classStyles_.at(name);
 }
 
-NodeStyle& GraphStyle::nodeInstanceStyle(const Node::Pointer& node)
+NodeStyle& GraphStyle::instanceStyle(const Node::Pointer& node)
 {
     return instanceStyles_[node->uuid()];
 }
 
-const NodeStyle& GraphStyle::nodeInstanceStyle(const Node::Pointer& node) const
+const NodeStyle& GraphStyle::instanceStyle(const Node::Pointer& node) const
 {
     return instanceStyles_.at(node->uuid());
 }
 
-NodeStyle& GraphStyle::nodeInstanceStyle(const Node* node)
+NodeStyle& GraphStyle::instanceStyle(const Node* node)
 {
     return instanceStyles_[node->uuid()];
 }
 
-const NodeStyle& GraphStyle::nodeInstanceStyle(const Node* node) const
+const NodeStyle& GraphStyle::instanceStyle(const Node* node) const
 {
     return instanceStyles_.at(node->uuid());
 }
 
-void GraphStyle::eraseNodeInstanceStyle(const Node::Pointer& node)
+void GraphStyle::eraseInstanceStyle(const Node::Pointer& node)
 {
     instanceStyles_.erase(node->uuid());
 }
 
-void GraphStyle::eraseNodeInstanceStyle(const Node* node)
+void GraphStyle::eraseInstanceStyle(const Node* node)
 {
     instanceStyles_.erase(node->uuid());
 }
@@ -151,12 +150,12 @@ NodeStyle GraphStyle::nodeStyle(const Node::Pointer& node) const
     auto style = defaultStyle_;
 
     auto className = NodeName(node);
-    if (hasNodeClassStyle(className)) {
-        style = MergeNodeStyles(style, nodeClassStyle(className));
+    if (hasClassStyle(className)) {
+        style = MergeNodeStyles(style, classStyle(className));
     }
 
-    if (hasNodeInstanceStyle(node)) {
-        style = MergeNodeStyles(style, nodeInstanceStyle(node));
+    if (hasInstanceStyle(node)) {
+        style = MergeNodeStyles(style, instanceStyle(node));
     }
     return style;
 }
@@ -166,12 +165,12 @@ NodeStyle GraphStyle::nodeStyle(const Node* node) const
     auto style = defaultStyle_;
 
     auto className = NodeName(node);
-    if (hasNodeClassStyle(className)) {
-        style = MergeNodeStyles(style, nodeClassStyle(className));
+    if (hasClassStyle(className)) {
+        style = MergeNodeStyles(style, classStyle(className));
     }
 
-    if (hasNodeInstanceStyle(node)) {
-        style = MergeNodeStyles(style, nodeInstanceStyle(node));
+    if (hasInstanceStyle(node)) {
+        style = MergeNodeStyles(style, instanceStyle(node));
     }
     return style;
 }

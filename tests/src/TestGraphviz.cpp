@@ -131,12 +131,11 @@ TEST(Graphviz, GraphStyle)
     style.defaultStyle().base.bgcolor = "red";
 
     // Class-specific style
-    auto className = NodeName(a);
-    style.nodeClassStyle(className).base.bgcolor = "white";
+    style.classStyle<IntNode>().base.bgcolor = "white";
 
     // Instance-specific style
-    style.nodeInstanceStyle(a).base.bgcolor = "blue";
-    style.nodeInstanceStyle(a).font.color = "white";
+    style.instanceStyle(a).base.bgcolor = "blue";
+    style.instanceStyle(a).font.color = "white";
 
     // Write the graph
     WriteDotFile("StyledGraph.gv", graph, style);

@@ -78,12 +78,11 @@ struct NodeStyle {
  * style.defaultStyle().base.bgcolor = "red";
  *
  * // Class-specific style
- * auto className = NodeName(a);
- * style.nodeClassStyle(className).base.bgcolor = "white";
+ * style.classStyle<IntNode>().base.bgcolor = "white";
  *
  * // Instance-specific style
- * style.nodeInstanceStyle(a).base.bgcolor = "blue";
- * style.nodeInstanceStyle(a).font.color = "white";
+ * style.instanceStyle(a).base.bgcolor = "blue";
+ * style.instanceStyle(a).font.color = "white";
  *
  * // Write the graph
  * WriteDotFile("StyledGraph.gv", g, style);
@@ -130,23 +129,53 @@ public:
      * the node's class name in the register can be determined using
      * smgl::NodeName.
      */
-    void setNodeClassStyle(const std::string& name, const NodeStyle& style);
+    void setClassStyle(const std::string& name, const NodeStyle& style);
+    /** @copydoc setClassStyle() */
+    template <class NodeT>
+    void setClassStyle(const NodeStyle& style)
+    {
+        setClassStyle(NodeName<NodeT>(), style);
+    }
     /** @brief Check if a class of nodes has an associated style */
-    bool hasNodeClassStyle(const std::string& name) const;
+    bool hasClassStyle(const std::string& name) const;
+    /** @copydoc hasClassStyle() */
+    template <class NodeT>
+    bool hasClassStyle() const
+    {
+        return hasClassStyle(NodeName<NodeT>());
+    }
     /** @brief Erase the style associated with a class of nodes */
-    void eraseNodeClassStyle(const std::string& name);
+    void eraseClassStyle(const std::string& name);
+    /** @copydoc eraseClassStyle() */
+    template <class NodeT>
+    void eraseClassStyle() const
+    {
+        eraseClassStyle(NodeName<NodeT>());
+    }
     /**
      * @brief Access the style for a class of nodes
      *
      * If a style has not been set, one is created and returned.
      */
-    NodeStyle& nodeClassStyle(const std::string& name);
+    NodeStyle& classStyle(const std::string& name);
+    /** @copydoc classStyle(const std::string&) */
+    template <class NodeT>
+    NodeStyle& classStyle()
+    {
+        return classStyle(NodeName<NodeT>());
+    }
     /**
-     * @copybrief nodeClassStyle
+     * @copybrief classStyle(const std::string&)
      *
      * @throws std::out_of_range if a style has not been set
      */
-    const NodeStyle& nodeClassStyle(const std::string& name) const;
+    const NodeStyle& classStyle(const std::string& name) const;
+    /** @copydoc classStyle(const std::string&) const */
+    template <class NodeT>
+    const NodeStyle& classStyle() const
+    {
+        return classStyle(NodeName<NodeT>());
+    }
     /** @} */
 
     /**
@@ -163,34 +192,33 @@ public:
      * Sets the style for a single node instance. A node instance is identified
      * using its smgl::Uuid.
      */
-    void setNodeInstanceStyle(
-        const Node::Pointer& node, const NodeStyle& style);
-    /** @copydoc setNodeInstanceStyle() */
-    void setNodeInstanceStyle(const Node* node, const NodeStyle& style);
+    void setInstanceStyle(const Node::Pointer& node, const NodeStyle& style);
+    /** @copydoc setInstanceStyle() */
+    void setInstanceStyle(const Node* node, const NodeStyle& style);
     /** @brief Check if a node has an associated instance style */
-    bool hasNodeInstanceStyle(const Node::Pointer& node) const;
-    /** @copydoc hasNodeInstanceStyle() */
-    bool hasNodeInstanceStyle(const Node* node) const;
+    bool hasInstanceStyle(const Node::Pointer& node) const;
+    /** @copydoc hasInstanceStyle() */
+    bool hasInstanceStyle(const Node* node) const;
     /** @brief Erase the style associated with a node instance */
-    void eraseNodeInstanceStyle(const Node::Pointer& node);
-    /** @copydoc eraseNodeInstanceStyle */
-    void eraseNodeInstanceStyle(const Node* node);
+    void eraseInstanceStyle(const Node::Pointer& node);
+    /** @copydoc eraseInstanceStyle */
+    void eraseInstanceStyle(const Node* node);
     /**
      * @brief Access the style for a node instance
      *
      * If a style has not been set, one is created and returned.
      */
-    NodeStyle& nodeInstanceStyle(const Node::Pointer& node);
+    NodeStyle& instanceStyle(const Node::Pointer& node);
     /**
-     * @copybrief nodeInstanceStyle
+     * @copybrief instanceStyle
      *
      * @throws std::out_of_range if a style has not been set
      */
-    const NodeStyle& nodeInstanceStyle(const Node::Pointer& node) const;
-    /** @copydoc nodeInstanceStyle() */
-    NodeStyle& nodeInstanceStyle(const Node* node);
-    /** @copydoc nodeInstanceStyle(const Node::Pointer&) const */
-    const NodeStyle& nodeInstanceStyle(const Node* node) const;
+    const NodeStyle& instanceStyle(const Node::Pointer& node) const;
+    /** @copydoc instanceStyle() */
+    NodeStyle& instanceStyle(const Node* node);
+    /** @copydoc instanceStyle(const Node::Pointer&) const */
+    const NodeStyle& instanceStyle(const Node* node) const;
     /** @} */
 
     /**
