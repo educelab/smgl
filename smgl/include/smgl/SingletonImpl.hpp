@@ -40,7 +40,7 @@ T& SingletonHolder<T, C, L, M>::Instance()
     // If we don't have an instance
     if (!instance_) {
         // Use the threading model to get a lock
-        typename M<T>::Lock guard;
+        [[maybe_unused]] typename M<T>::Lock guard;
         // Double-checked locking pattern
         if (!instance_) {
             // Handle the singleton already being destroyed
