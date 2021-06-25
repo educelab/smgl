@@ -34,9 +34,24 @@ test:debian:10:
     tags:
         - docker
 
+test:ubuntu:21.04:
+    extends: .build_and_test
+    stage: test
+    needs: []
+    image: ubuntu:21.04
+    variables:
+        EXTRA_CMAKE_FLAGS: "-DSMGL_BUILD_TESTS=ON"
+    before_script:
+        - apt update
+        - apt install -y build-essential cmake ninja-build git
+        - export CMAKE_CMD="cmake -GNinja $EXTRA_CMAKE_FLAGS .."
+    tags:
+        - docker
+
 ### Docs ###
 pages:
     stage: deploy
+    needs: []
     image: debian:buster-backports
     before_script:
         - apt-get update
