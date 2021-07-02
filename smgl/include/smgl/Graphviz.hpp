@@ -4,8 +4,10 @@
 
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 
 #include "smgl/Graph.hpp"
+#include "smgl/Utilities.hpp"
 #include "smgl/filesystem.hpp"
 
 namespace smgl
@@ -90,8 +92,8 @@ struct NodeStyle {
  * @image html graphviz-styled.png
  *
  * @warning Neither this class nor smgl::WriteDotFile makes any effort to
- * validate the values set in properties. For more information on valid property
- * values, see the Doxygen documentation for
+ * validate the values set in style properties. For more information on valid
+ * property values, see the Doxygen documentation for
  * [HTML-like labels](https://graphviz.org/doc/info/shapes.html#html).
  */
 class GraphStyle
@@ -132,26 +134,17 @@ public:
     void setClassStyle(const std::string& name, const NodeStyle& style);
     /** @copydoc setClassStyle() */
     template <class NodeT>
-    void setClassStyle(const NodeStyle& style)
-    {
-        setClassStyle(NodeName<NodeT>(), style);
-    }
+    void setClassStyle(const NodeStyle& style);
     /** @brief Check if a class of nodes has an associated style */
     bool hasClassStyle(const std::string& name) const;
     /** @copydoc hasClassStyle() */
     template <class NodeT>
-    bool hasClassStyle() const
-    {
-        return hasClassStyle(NodeName<NodeT>());
-    }
+    bool hasClassStyle() const;
     /** @brief Erase the style associated with a class of nodes */
     void eraseClassStyle(const std::string& name);
     /** @copydoc eraseClassStyle() */
     template <class NodeT>
-    void eraseClassStyle() const
-    {
-        eraseClassStyle(NodeName<NodeT>());
-    }
+    void eraseClassStyle() const;
     /**
      * @brief Access the style for a class of nodes
      *
@@ -160,10 +153,7 @@ public:
     NodeStyle& classStyle(const std::string& name);
     /** @copydoc classStyle(const std::string&) */
     template <class NodeT>
-    NodeStyle& classStyle()
-    {
-        return classStyle(NodeName<NodeT>());
-    }
+    NodeStyle& classStyle();
     /**
      * @copybrief classStyle(const std::string&)
      *
@@ -172,10 +162,7 @@ public:
     const NodeStyle& classStyle(const std::string& name) const;
     /** @copydoc classStyle(const std::string&) const */
     template <class NodeT>
-    const NodeStyle& classStyle() const
-    {
-        return classStyle(NodeName<NodeT>());
-    }
+    const NodeStyle& classStyle() const;
     /** @} */
 
     /**
@@ -234,6 +221,81 @@ public:
     NodeStyle nodeStyle(const Node* node) const;
     /** @} */
 
+    /**
+     * @name Node Placement
+     * Allows basic placement of nodes according to manually defined rank rules.
+     * See the
+     * [Graphviz rank documentation](https://graphviz.org/docs/attrs/rank/)
+     * for more information.
+     */
+    /** @{ */
+    /** @brief Assign node(s) to the minimum rank */
+    template <typename... Args>
+    void setRankMin(const Args&... args);
+
+    /**
+     * @brief Assign node(s) to the minimum rank and limits the minimum rank to
+     * nodes with rank=min or rank=source.
+     */
+    template <typename... Args>
+    void setRankSource(const Args&... args);
+
+    /** @brief Assigns node(s) to the maximum rank */
+    template <typename... Args>
+    void setRankMax(const Args&... args);
+
+    /**
+     * @brief Assign node(s) to the maximum rank and limits the maximum rank to
+     * nodes with rank=max or rank=sink.
+     */
+    template <typename... Args>
+    void setRankSink(const Args&... args);
+
+    /**
+     * @brief Assign node(s) to a new group ranking
+     *
+     * Creates a new rank group and assigns the node(s) to that group. Returns
+     * the index of the group ranking so that nodes can be appended to the group
+     * with appendRankSame().
+     */
+    template <typename... Args>
+    std::size_t setRankSame(const Args&... args);
+
+    /**
+     * @brief Assign node(s) to an existing group ranking
+     *
+     * Assign the node(s) to an existing group ranking created with
+     * setRankSame().
+     */
+    template <typename T, typename... Args>
+    void appendRankSame(T idx, const Args&... args);
+
+    /** @brief Get the set of nodes assigned to the minimum rank */
+    std::unordered_set<Uuid>& rankMin();
+    /** @copydoc rankMin() */
+    const std::unordered_set<Uuid>& rankMin() const;
+
+    /** @brief Get the set of nodes assigned to the source rank */
+    std::unordered_set<Uuid>& rankSource();
+    /** @copydoc rankSource() */
+    const std::unordered_set<Uuid>& rankSource() const;
+
+    /** @brief Get the set of nodes assigned to the maximum rank */
+    std::unordered_set<Uuid>& rankMax();
+    /** @copydoc rankMax() */
+    const std::unordered_set<Uuid>& rankMax() const;
+
+    /** @brief Get the set of nodes assigned to the sink rank */
+    std::unordered_set<Uuid>& rankSink();
+    /** @copydoc rankSink() */
+    const std::unordered_set<Uuid>& rankSink() const;
+
+    /** @brief Get the set of rank groups */
+    std::vector<std::vector<Uuid>>& rankSame();
+    /** @copydoc rankSame() */
+    const std::vector<std::vector<Uuid>>& rankSame() const;
+    /** @} */
+
 private:
     /** Default node style */
     NodeStyle defaultStyle_;
@@ -241,6 +303,16 @@ private:
     std::unordered_map<std::string, NodeStyle> classStyles_;
     /** Instance-specific node styles */
     std::unordered_map<Uuid, NodeStyle> instanceStyles_;
+    /** rank=min nodes */
+    std::unordered_set<Uuid> rankMin_;
+    /** rank=source nodes */
+    std::unordered_set<Uuid> rankSrc_;
+    /** rank=max nodes */
+    std::unordered_set<Uuid> rankMax_;
+    /** rank=sink nodes */
+    std::unordered_set<Uuid> rankSink_;
+    /** rank=same node groups */
+    std::vector<std::vector<Uuid>> rankSame_;
 };
 
 /** @brief Write Graph to a file in the Graphviz Dot format */
@@ -250,3 +322,5 @@ void WriteDotFile(
     const GraphStyle& style = GraphStyle());
 
 } // namespace smgl
+
+#include "smgl/GraphvizImpl.hpp"

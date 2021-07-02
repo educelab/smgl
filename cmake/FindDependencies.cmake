@@ -9,14 +9,13 @@ option(SMGL_BUILD_JSON "Build in-source JSON library" ON)
 if(SMGL_BUILD_JSON)
     FetchContent_Declare(
         json
-        URL https://github.com/nlohmann/json/archive/v3.9.1.tar.gz
-        CMAKE_CACHE_ARGS
-            -DJSON_BuildTests:BOOL=OFF
+        URL https://github.com/nlohmann/json/archive/6471a63.tar.gz
     )
 
     FetchContent_GetProperties(json)
     if(NOT json_POPULATED)
         set(JSON_BuildTests OFF CACHE INTERNAL "")
+        set(JSON_Install ON CACHE INTERNAL "")
         FetchContent_Populate(json)
         add_subdirectory(${json_SOURCE_DIR} ${json_BINARY_DIR} EXCLUDE_FROM_ALL)
     endif()

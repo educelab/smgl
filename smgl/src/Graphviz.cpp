@@ -175,6 +175,35 @@ NodeStyle GraphStyle::nodeStyle(const Node* node) const
     return style;
 }
 
+std::unordered_set<Uuid>& GraphStyle::rankMin() { return rankMin_; }
+
+const std::unordered_set<Uuid>& GraphStyle::rankMin() const { return rankMin_; }
+
+std::unordered_set<Uuid>& GraphStyle::rankSource() { return rankSrc_; }
+
+const std::unordered_set<Uuid>& GraphStyle::rankSource() const
+{
+    return rankSrc_;
+}
+
+std::unordered_set<Uuid>& GraphStyle::rankMax() { return rankMax_; }
+
+const std::unordered_set<Uuid>& GraphStyle::rankMax() const { return rankMax_; }
+
+std::unordered_set<Uuid>& GraphStyle::rankSink() { return rankSink_; }
+
+const std::unordered_set<Uuid>& GraphStyle::rankSink() const
+{
+    return rankSink_;
+}
+
+std::vector<std::vector<Uuid>>& GraphStyle::rankSame() { return rankSame_; }
+
+const std::vector<std::vector<Uuid>>& GraphStyle::rankSame() const
+{
+    return rankSame_;
+}
+
 // Get the Short UUID (first 8 digits)
 inline std::string ShortId(const Uuid& u) { return u.string().substr(0, 8); }
 
@@ -291,6 +320,47 @@ void smgl::WriteDotFile(
     dot << "node [shape=plain];\n";
     for (const auto& n : g.nodes_) {
         WriteNode(dot, n.second, style);
+    }
+
+    // Write rank info
+    if (not style.rankMin().empty()) {
+        dot << "{rank=min;";
+        for (const auto& n : style.rankMin()) {
+            dot << Quote(ShortId(n)) << ";";
+        }
+        dot << "}\n";
+    }
+
+    if (not style.rankSource().empty()) {
+        dot << "{rank=source;";
+        for (const auto& n : style.rankSource()) {
+            dot << Quote(ShortId(n)) << ";";
+        }
+        dot << "}\n";
+    }
+
+    if (not style.rankMax().empty()) {
+        dot << "{rank=max;";
+        for (const auto& n : style.rankMax()) {
+            dot << Quote(ShortId(n)) << ";";
+        }
+        dot << "}\n";
+    }
+
+    if (not style.rankSink().empty()) {
+        dot << "{rank=sink;";
+        for (const auto& n : style.rankSink()) {
+            dot << Quote(ShortId(n)) << ";";
+        }
+        dot << "}\n";
+    }
+
+    for (const auto& group : style.rankSame()) {
+        dot << "{rank=same;";
+        for (const auto& n : group) {
+            dot << Quote(ShortId(n)) << ";";
+        }
+        dot << "}\n";
     }
 
     // Write graph label

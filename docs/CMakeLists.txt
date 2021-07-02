@@ -12,9 +12,19 @@ set(DOXYGEN_USE_MDFILE_AS_MAINPAGE "${PROJECT_SOURCE_DIR}/docs/index.md")
 set(DOXYGEN_SOURCE_BROWSER YES)
 set(DOXYGEN_EXTRACT_STATIC YES)
 set(DOXYGEN_EXTRACT_PRIVATE YES)
-set(DOXYGEN_PREDEFINED "SMGL_USE_STDFS=${SMGL_USE_STDFS}")
 set(DOXYGEN_IMAGE_PATH "${PROJECT_SOURCE_DIR}/graphics/")
 set(DOXYGEN_QUIET YES)
+
+# Setup tag files
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html/doxy-tags/)
+set(DOXYGEN_GENERATE_TAGFILE ${CMAKE_CURRENT_BINARY_DIR}/html/doxy-tags/educelab_smeagol.tag)
+file(COPY doxy-tags/ DESTINATION html/doxy-tags/)
+set(DOXYGEN_TAGFILES "doxy-tags/cppreference-doxygen-web.tag.xml=http://en.cppreference.com/w/")
+
+# Add compiler definitions
+if(SMGL_USE_BOOSTFS)
+    set(DOXYGEN_PREDEFINED "SMGL_USE_BOOSTFS=${SMGL_USE_BOOSTFS}")
+endif()
 
 doxygen_add_docs(
     docs
