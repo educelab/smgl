@@ -5,6 +5,8 @@ set(public_hdrs
     include/smgl/filesystem.hpp
     include/smgl/Graph.hpp
     include/smgl/GraphImpl.hpp
+    include/smgl/Graphviz.hpp
+    include/smgl/GraphvizImpl.hpp
     include/smgl/Metadata.hpp
     include/smgl/Node.hpp
     include/smgl/NodeImpl.hpp
@@ -12,6 +14,7 @@ set(public_hdrs
     include/smgl/PortsImpl.hpp
     include/smgl/Singleton.hpp
     include/smgl/SingletonImpl.hpp
+    include/smgl/TypeTraits.hpp
     include/smgl/Utilities.hpp
     include/smgl/UtilitiesImpl.hpp
     include/smgl/Uuid.hpp

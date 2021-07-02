@@ -17,3 +17,10 @@
  * @namespace smgl::detail
  * @brief Implementation details namespace
  */
+
+/**
+ * @namespace smgl::type_traits
+ * @brief Custom type traits namespace
+ *
+ * Augments the type_traits found in `<%type_traits>`
+ */

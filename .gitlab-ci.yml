@@ -23,28 +23,64 @@
         - *build_script
         - *test_script
 
-### Tests ###
-test:debian:10:
+.build_and_test_linux:
     extends: .build_and_test
+    variables:
+        APT_PACKAGES: "build-essential cmake ninja-build git"
+        BACKPORTS_TARGET: ""
+        BACKPORTS_PACKAGES: ""
+    before_script:
+        - |
+          apt update
+          apt install -y $APT_PACKAGES
+          [ ! -z "$BACKPORTS_TARGET" ] && [ ! -z "$BACKPORTS_PACKAGES" ] && apt -t $BACKPORTS_TARGET install -y $BACKPORTS_PACKAGES
+          export CMAKE_CMD="cmake -GNinja $EXTRA_CMAKE_FLAGS .."
+
+### Tests ###
+test:debian:buster:
+    extends: .build_and_test_linux
     stage: test
     needs: []
-    image: volcart/vcbuilder-debian:10_v1.base
+    image: debian:buster-backports
     variables:
+        APT_PACKAGES: "build-essential ninja-build git"
+        BACKPORTS_TARGET: "buster-backports"
+        BACKPORTS_PACKAGES: "cmake"
         EXTRA_CMAKE_FLAGS: "-DSMGL_BUILD_TESTS=ON"
     tags:
         - docker
 
+test:debian:buster:boost:
+    extends: .build_and_test_linux
+    stage: test
+    needs: []
+    image: debian:buster-backports
+    variables:
+        APT_PACKAGES: "build-essential ninja-build git libboost-filesystem-dev"
+        BACKPORTS_TARGET: "buster-backports"
+        BACKPORTS_PACKAGES: "cmake"
+        EXTRA_CMAKE_FLAGS: "-DSMGL_BUILD_TESTS=ON -DSMGL_USE_BOOSTFS=ON"
+    tags:
+        - docker
+
 test:ubuntu:21.04:
-    extends: .build_and_test
+    extends: .build_and_test_linux
     stage: test
     needs: []
     image: ubuntu:21.04
     variables:
         EXTRA_CMAKE_FLAGS: "-DSMGL_BUILD_TESTS=ON"
-    before_script:
-        - apt update
-        - apt install -y build-essential cmake ninja-build git
-        - export CMAKE_CMD="cmake -GNinja $EXTRA_CMAKE_FLAGS .."
+    tags:
+        - docker
+
+test:ubuntu:21.04:boost:
+    extends: .build_and_test_linux
+    stage: test
+    needs: []
+    image: ubuntu:21.04
+    variables:
+        APT_PACKAGES: "build-essential cmake ninja-build git libboost-filesystem-dev"
+        EXTRA_CMAKE_FLAGS: "-DSMGL_BUILD_TESTS=ON -DSMGL_USE_BOOSTFS=ON"
     tags:
         - docker
 

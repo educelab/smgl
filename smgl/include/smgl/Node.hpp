@@ -70,12 +70,23 @@ class Node : public UniquelyIdentifiable
 {
 public:
     /** Node update status */
-    enum class Status { Idle, Waiting, Ready, Updating, Error };
+    enum class Status {
+        /** Does not need to be updated */
+        Idle,
+        /** Waiting on an upstream dependency to update */
+        Waiting,
+        /** Ready to be updated */
+        Ready,
+        /** Updating */
+        Updating,
+        /** Error updating */
+        Error
+    };
 
     /** Pointer type */
     using Pointer = std::shared_ptr<Node>;
 
-    /** Port info type */
+    /** @brief Port registration information */
     struct Info {
         /** Constructor */
         Info(std::string n, const Uuid& u) : name{std::move(n)}, uuid{u} {}
