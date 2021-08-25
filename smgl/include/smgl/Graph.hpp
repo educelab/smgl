@@ -53,6 +53,9 @@ public:
     /** @brief Remove a Node from the Graph */
     void removeNode(const Node::Pointer& n);
 
+    /** @brief Get the number of nodes in the graph */
+    std::size_t size() const;
+
     /** @brief Get the current update status */
     Status status() const;
 
@@ -107,6 +110,15 @@ public:
      */
     void setEnableCache(bool enable);
 
+    /** @brief Set the project metadata */
+    void setProjectMetadata(const Metadata& m);
+
+    /** @brief Get the project metadata */
+    const Metadata& projectMetadata() const;
+
+    /** @copydoc projectMetadata() const */
+    Metadata& projectMetadata();
+
     /**
      * @brief Update the Graph's nodes
      *
@@ -147,6 +159,33 @@ public:
     static Graph Load(const filesystem::path& path);
 
     /**
+     * @brief Checks that a Graph JSON file can be loaded
+     *
+     * Checks that every Node in the Graph is registered with the serialization
+     * system. Returns the list of unregistered types as strings so that missing
+     * registrations can be handled appropriately before calling Graph::Load.
+     *
+     * @param path Path to input file in the JSON format
+     * @return List of Node types that are not registered for serialization
+     */
+    static std::vector<std::string> CheckRegistration(
+        const filesystem::path& path);
+
+    /**
+     * @brief Checks that a Graph can be serialized
+     *
+     * Checks that every Node in the Graph is registered with the serialization
+     * system. Returns the list of unregistered types as strings so that missing
+     * registrations can be handled appropriately before calling Graph::Load.
+     * The returned type strings are the automatically generated names used when
+     * calling RegisterNode() with no arguments.
+     *
+     * @param g Graph to be checked
+     * @return List of Node types that are not registered for serialization
+     */
+    static std::vector<std::string> CheckRegistration(const Graph& g);
+
+    /**
      * @brief Generate an update schedule for the provided Graph
      *
      * Traverses the Graph and produces an ordered schedule for updating
@@ -166,6 +205,8 @@ private:
     std::unordered_map<Uuid, Node::Pointer> nodes_;
     /** Graph's update status */
     Status status_{Status::Idle};
+    /** Extra metadata */
+    Metadata extraMetadata_;
 
     /** Perform graph serialization */
     static Metadata Serialize(

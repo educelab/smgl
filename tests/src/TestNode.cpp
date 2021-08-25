@@ -140,6 +140,23 @@ TEST(Node, GetPortFunctions)
     EXPECT_EQ(std::static_pointer_cast<SumOp>(op)->result(), 2);
 }
 
+TEST(Node, GetPortFunctionsOperatorConnect)
+{
+    using IntNode = test::PassThroughNode<int>;
+    using SumOp = test::AdditionNode<int>;
+    Node::Pointer lhs = std::make_shared<IntNode>(1);
+    Node::Pointer rhs = std::make_shared<IntNode>(1);
+    Node::Pointer op = std::make_shared<SumOp>();
+
+    op->getInputPort("lhs") = lhs->getOutputPort("get");
+    op->getInputPort("rhs") = rhs->getOutputPort("get");
+    for (const auto& ptr : {lhs, rhs, op}) {
+        ptr->update();
+    }
+
+    EXPECT_EQ(std::static_pointer_cast<SumOp>(op)->result(), 2);
+}
+
 TEST(Node, TestDefaultRegistration)
 {
     using SourceNode = test::PassThroughNode<int>;
@@ -198,10 +215,8 @@ TEST(Node, TestDefaultRegistrationMultiple)
     // Register nodes
     // Note: Tests in this file are all run in the same context, so these
     // registrations affect other tests and vice versa.
-    EXPECT_TRUE(RegisterNode<SourceNode>());
-    EXPECT_TRUE(RegisterNode<SumOp>());
-    EXPECT_TRUE(RegisterNode<SubOp>());
-    EXPECT_TRUE(RegisterNode<WrapperOp>());
+    auto res = RegisterNode<SourceNode, SumOp, SubOp, WrapperOp>();
+    EXPECT_TRUE(res);
 
     // Check that the registrations are listed
     std::vector<std::string> keys{
@@ -222,9 +237,7 @@ TEST(Node, TestDefaultRegistrationMultiple)
     }
 
     // Deregister nodes
-    for (const auto& k : keys) {
-        EXPECT_TRUE(DeregisterNode(k));
-    }
+    res = DeregisterNode<SourceNode, SumOp, SubOp, WrapperOp>();
     EXPECT_EQ(NodeFactoryType::Instance().GetRegisteredIdentifiers().size(), 0);
 }
 

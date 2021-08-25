@@ -1,3 +1,4 @@
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 #include <vector>
@@ -163,7 +164,7 @@ TEST(Graph, BasicCachingGraph)
     RegisterNode<CacheNode>();
 
     // Set cache file
-    fs::path cacheFile{"BasicCachingGraph.json"};
+    fs::path cacheFile{"TestGraph_BasicCachingGraph.json"};
 
     // Build graph
     Graph graph;
@@ -245,7 +246,7 @@ TEST(Graph, SerializationDeserialization)
     g.update();
 
     // Serialize the graph
-    fs::path graphFile{"SerializedGraph.json"};
+    fs::path graphFile{"TestGraph_SerializationDeserialization.json"};
     Graph::Save(graphFile, g);
 
     // Deserialize the graph
@@ -272,6 +273,55 @@ TEST(Graph, SerializationDeserialization)
 
     DeregisterNode<SourceNode>();
     DeregisterNode<SumOpNode>();
+}
+
+TEST(Graph, CheckRegistration)
+{
+    // type aliases
+    using SourceNode = test::ClassWrapperNode<int>;
+    using SumOpNode = test::AdditionNode<int>;
+
+    // Register nodes
+    RegisterNode<SourceNode>();
+    RegisterNode<SumOpNode>();
+
+    // Setup graph
+    Graph g;
+
+    // Add nodes to graph
+    g.insertNode<SourceNode>();
+    g.insertNode<SumOpNode>();
+
+    // Test the in-memory overload (all registered)
+    auto unregistered = Graph::CheckRegistration(g);
+    EXPECT_TRUE(unregistered.empty());
+
+    // Write the graph to disk
+    fs::path graphFile{"TestGraph_CheckRegistration.json"};
+    Graph::Save(graphFile, g);
+
+    // Test the file overload (all registered)
+    unregistered = Graph::CheckRegistration(graphFile);
+    EXPECT_TRUE(unregistered.empty());
+
+    // Deregister nodes
+    DeregisterNode<SourceNode>();
+    DeregisterNode<SumOpNode>();
+
+    // Test the in-memory overload (all deregistered)
+    using ::testing::UnorderedElementsAre;
+    unregistered = Graph::CheckRegistration(g);
+    EXPECT_THAT(
+        unregistered, UnorderedElementsAre(
+                          "smgl::test::ClassWrapperNode<int>",
+                          "smgl::test::AdditionNode<int>"));
+
+    // Test the file overload (all deregistered)
+    unregistered = Graph::CheckRegistration(graphFile);
+    EXPECT_THAT(
+        unregistered, UnorderedElementsAre(
+                          "smgl::test::ClassWrapperNode<int>",
+                          "smgl::test::AdditionNode<int>"));
 }
 
 TEST(Graph, Scheduling)

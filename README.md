@@ -52,51 +52,7 @@ The CMake project provides a number of flags for configuring the build:
 
 ## Usage
 ### Building Custom Nodes
-```c++
-#include <smgl/Node.hpp>
-#include <smgl/Ports.hpp>
-
-class SumNode : public smgl::Node 
-{
-private:
-    // Internal state variables
-    int lhs_{0};
-    int rhs_{0};
-    int res_{0};
-public:
-    // InputPort receives values and places them in targets
-    smgl::InputPort<int> lhs{&lhs_};
-    smgl::InputPort<int> rhs{&rhs_};
-    // OutputPort gets values from a source and posts them to connections
-    smgl::OutputPort<int> result{&res_};
-    
-    SumNode() : Node() {
-        // Register all ports for serialization
-        registerInputPort("lhs", lhs);
-        registerInputPort("rhs", rhs);
-        registerOutputPort("result", result);
-        
-        // Define computation function
-        compute = [=]() { result = lhs + rhs; };
-    }
-private:
-    // Write internal state to Metadata
-    smgl::Metadata serialize_(bool useCache, const smgl::filesystem::path& cacheDir) override {
-        return {
-            {"lhs", lhs_},
-            {"rhs", rhs_},
-            {"result", result_},
-        };
-    }
-    
-    // Load internal state from Metadata 
-    void deserialize_(const smgl::Metadata& data, const smgl::filesystem::path& cacheDir) override {
-        lhs_ = data["lhs"].get<T>();
-        rhs_ = data["rhs"].get<T>();
-        result_ = data["result"].get<T>();
-    }
-};
-```
+See the [Building custom nodes](https://educelab.gitlab.io/smeagol/docs/building-custom-nodes.html) tutorial.
 
 ### Building Graphs
 ```c++
@@ -108,13 +64,15 @@ smgl::Graph g;
 
 // 1 + 2
 auto sumOp = g.insertNode<SumNode>();
-sumOp->lhs(1);
-sumOp->rhs(2);
+sumOp->lhs = 1;
+sumOp->rhs = 2;
 
 // (1 + 2) * 3
 auto multOp = g.insertNode<MultiplyNode>();
-sumOp->result >> multOp->lhs; // OR smgl::connect(sumOp->result, multOp->lhs)
-multOp->rhs(3);
+multOp->lhs = sumOp->result;
+// (equivalent) smgl::connect(sumOp->result, multOp->lhs)
+// (equivalent) sumOp->result >> multOp->lhs;
+multOp->rhs = 3;
 
 // Update the graph
 g.update();
@@ -122,7 +80,7 @@ g.update();
 std::cout << multOp->result() << std::endl; // 9
 
 // Change input and update
-sumOp->lhs(2);
+sumOp->lhs = 2;
 g.update();
 
 std::cout << multOp->result() << std::endl; // 12

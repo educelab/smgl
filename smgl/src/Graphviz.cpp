@@ -4,11 +4,36 @@
 #include <iomanip>
 #include <regex>
 #include <sstream>
+#include <type_traits>
 
 #include "smgl/Node.hpp"
 
 using namespace smgl;
 namespace fs = filesystem;
+
+namespace smgl
+{
+namespace detail
+{
+// C++17 provides gcd and lcm, but we currently must support C++14
+template <class M, class N>
+constexpr std::common_type_t<M, N> gcd(M m, N n)
+{
+    while (n != 0) {
+        auto t = n;
+        n = m % n;
+        m = t;
+    }
+    return m;
+}
+
+template <class M, class N>
+constexpr std::common_type_t<M, N> lcm(M m, N n)
+{
+    return m / gcd(m, n) * n;
+}
+}  // namespace detail
+}  // namespace smgl
 
 static ElementStyle MergeElementStyles(
     const ElementStyle& a, const ElementStyle& b)
@@ -306,7 +331,7 @@ static std::string TableStyleString(const BaseStyle& style)
 
 // Write a Node n to of in Dot format
 void WriteNode(
-    std::ofstream& of, const Node::Pointer& n, const GraphStyle& node);
+    std::ofstream& of, const Node::Pointer& n, const GraphStyle& style);
 
 void smgl::WriteDotFile(
     const fs::path& path, const Graph& g, const GraphStyle& style)
@@ -383,7 +408,16 @@ void WriteNode(
 {
     auto inputInfo = n->getInputPortsInfo();
     auto outputInfo = n->getOutputPortsInfo();
-    auto cols = std::max(inputInfo.size(), outputInfo.size());
+    std::size_t cols;
+    if (inputInfo.empty() and outputInfo.empty()) {
+        cols = 1;
+    } else if (inputInfo.empty()) {
+        cols = outputInfo.size();
+    } else if (outputInfo.empty()) {
+        cols = inputInfo.size();
+    } else {
+        cols = detail::lcm(inputInfo.size(), outputInfo.size());
+    }
     auto nodeStyle = style.nodeStyle(n);
 
     // Write node id

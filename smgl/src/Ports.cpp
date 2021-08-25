@@ -72,3 +72,9 @@ void Input::disconnect(Output* op)
         src_ = nullptr;
     }
 }
+
+Input& Input::operator=(Output& op)
+{
+    smgl::connect(op, *this);
+    return *this;
+}

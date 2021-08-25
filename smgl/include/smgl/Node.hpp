@@ -27,7 +27,7 @@ namespace smgl
  * To customize Node behavior, assign or override the members Node::compute,
  * Node::serialize_, and Node::deserialize_.
  *
- * @code
+ * ```{.cpp}
  * using namespace smgl;
  *
  * class SumNode : public Node {
@@ -64,7 +64,7 @@ namespace smgl
  *         c_ = m["c"].get<int>();
  *     }
  * }
- * @endcode
+ * ```
  */
 class Node : public UniquelyIdentifiable
 {
@@ -174,7 +174,9 @@ public:
 
 protected:
     /** Protected constructor can only be called by child class */
-    Node() = default;
+    Node();
+    /** Protected constructor to set usesCacheDir value */
+    explicit Node(bool usesCacheDir);
     /** Protected virtual destructor should override by child class */
     virtual ~Node() = default;
 
@@ -207,7 +209,7 @@ protected:
      * It is generally preferable to assign this function in the child Node's
      * constructor.
      *
-     * @code
+     * ```{.cpp}
      * // Free function
      * compute = &foo;
      *
@@ -218,9 +220,26 @@ protected:
      *
      * // Lambda function capturing local context
      * compute = [=]() { privateInt += 1; };
-     * @endcode
+     * ```
      */
     std::function<void()> compute;
+
+    /**
+     * Function flag for whether this Node uses the cacheDir when serializing.
+     * Replacing this function allows a child class to define whether or not
+     * a cache directory is needed at runtime. The default implementation
+     * returns false or the value passed to Node(bool).
+     *
+     * ```{.cpp}
+     * struct Foo {
+     *     std::unique_ptr<ComplexType> bar;
+     *     Foo() {
+     *         usesCacheDir = [&bar = bar](){ return bar != nullptr;};
+     *     }
+     * }
+     * ```
+     */
+    std::function<bool()> usesCacheDir;
 
 private:
     /**
@@ -234,7 +253,9 @@ private:
      *
      * By default, this method produces an empty Metadata object. Child classes
      * of Node wishing to make use of the smgl serialization behavior should
-     * override both serialize_() and deserialize_().
+     * override both serialize_() and deserialize_(). If the child
+     * implementation needs to use the cache directory, it should either call
+     * the Node(bool) constructor or redefine Node::usesCacheDir.
      *
      * Metadata supports direct serialization of many internal types and STL
      * and containers. For data types which are not supported, data may be
@@ -243,7 +264,7 @@ private:
      * is good practice to serialize the name of any files written so that they
      * can later be easily identified by the deserialize_() process:
      *
-     * @code
+     * ```{.cpp}
      * class MyNode : public Node {
      * private:
      *     Metadata serialize_(bool useCache, const path& cacheDir) override;
@@ -259,7 +280,7 @@ private:
      *     }
      *     return m;
      * }
-     * @endcode
+     * ```
      */
     virtual Metadata serialize_(
         bool useCache, const filesystem::path& cacheDir);
@@ -276,7 +297,9 @@ private:
      *
      * By default, this method does nothing. Child classes of Node wishing to
      * make use of the smgl serialization behavior should override both
-     * serialize_() and deserialize_().
+     * serialize_() and deserialize_(). If the child implementation needs to
+     * use the cache directory, it should either call the Node(bool) constructor
+     * or redefine Node::usesCacheDir.
      *
      * Metadata supports direct deserialization of many internal types and STL
      * containers using the `get` template method. For data types which are not
@@ -284,7 +307,7 @@ private:
      * serialize the name of any files that need to be loaded during
      * deserialization when overriding serialize_().
      *
-     * @code
+     * ```{.cpp}
      * class MyNode : public Node {
      * private:
      *     void deserialize_(const Metadata& data, const path& cacheDir) override;
@@ -298,7 +321,7 @@ private:
      *         fs.close();
      *     }
      * }
-     * @endcode
+     * ```
      */
     // clang-format on
     virtual void deserialize_(
@@ -357,17 +380,19 @@ using unknown_identifier =
     detail::NodeFactoryType::InstanceType::unknown_identifier;
 
 /**
- * @brief Register a Node type for serialization/deserialization using an
+ * @brief Register Node types for serialization/deserialization using an
  * automatically generated name
  *
- * This function uses the demangled compiled object name (e.g. "smgl::MyNode")
+ * This function uses the demangled, compiled object name (e.g. `smgl::MyNode`)
  * as the registered Node name. Note that this can result in non-human readable
  * node names when using complex templated type names.
  *
  * Node registration is global and only needs to be performed once during
  * execution of a program.
+ *
+ * @returns Whether or not registration was successful for all provided types
  */
-template <class T>
+template <class T, class... Ts>
 bool RegisterNode();
 
 /**
@@ -387,8 +412,10 @@ bool RegisterNode(const std::string& name);
  *
  * Because Node registration is global, this typically only needs to be called
  * when testing or debugging custom Nodes.
+ *
+ * @returns Whether or not de-registration was successful for all provided types
  */
-template <class T>
+template <class T, class... Ts>
 bool DeregisterNode();
 
 /**
@@ -411,10 +438,7 @@ Node::Pointer CreateNode(const std::string& name);
  * registered
  */
 template <class T>
-std::string NodeName()
-{
-    return detail::NodeFactoryType::Instance().GetTypeIdentifier(typeid(T));
-}
+std::string NodeName();
 
 /** @copydoc NodeName() */
 std::string NodeName(const Node::Pointer& node);

@@ -1,5 +1,6 @@
 # Public headers
 set(public_hdrs
+    include/smgl/smgl.hpp
     include/smgl/Factory.hpp
     include/smgl/FactoryImpl.hpp
     include/smgl/filesystem.hpp
