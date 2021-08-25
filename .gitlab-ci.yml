@@ -105,4 +105,4 @@ pages:
     tags:
         - docker
     only:
-        - dev
+        - main
