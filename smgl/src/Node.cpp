@@ -4,6 +4,13 @@
 
 using namespace smgl;
 
+Node::Node() : usesCacheDir{[]() { return false; }} {}
+
+Node::Node(bool usesCacheDir)
+    : usesCacheDir{[usesCacheDir]() { return usesCacheDir; }}
+{
+}
+
 void Node::update()
 {
     // Check if inputs have updated
@@ -27,6 +34,11 @@ Metadata Node::serialize(bool useCache, const filesystem::path& cacheRoot)
     meta["type"] = NodeName(this);
     meta["uuid"] = uuid_.string();
 
+    // Make sure that the Node specifies that it uses the cacheDir
+    // This stops the node from reading from a non-existent directory if
+    // usesCacheDir() == false and useCache == true
+    useCache &= usesCacheDir();
+
     // Construct the cache dir if needed
     auto nodeCache = cacheRoot / uuid_.string();
     if (useCache and not filesystem::exists(nodeCache)) {
@@ -34,9 +46,11 @@ Metadata Node::serialize(bool useCache, const filesystem::path& cacheRoot)
     }
 
     // Serialize port info
+    meta["inputPorts"] = Metadata::object();
     for (const auto& ip : inputs_by_name_) {
         meta["inputPorts"][ip.first] = ip.second->serialize();
     }
+    meta["outputPorts"] = Metadata::object();
     for (const auto& op : outputs_by_name_) {
         meta["outputPorts"][op.first] = op.second->serialize();
     }
@@ -239,6 +253,7 @@ bool smgl::IsRegistered(const std::string& name)
 {
     return detail::NodeFactoryType::Instance().IsRegistered(name);
 }
+
 bool smgl::IsRegistered(const Node::Pointer& node)
 {
     if (node == nullptr) {

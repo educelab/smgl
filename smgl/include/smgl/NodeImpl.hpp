@@ -50,10 +50,19 @@ void Node::registerOutputPort(
     outputs_by_name_[name] = &port;
 }
 
-template <class T>
+template <class T, class... Ts>
 bool RegisterNode()
 {
-    return RegisterNode<T>(detail::type_name<T>());
+    // Reserve nodes
+    using NF = detail::NodeFactoryType;
+    NF::Instance().ReserveAdditional(1 + sizeof...(Ts));
+    auto res = RegisterNode<T>(detail::type_name<T>());
+#if __cplusplus >= 201703L
+    return res && (RegisterNode<Ts>(detail::type_name<Ts>()) && ...);
+#elif __cplusplus > 201103L
+    detail::ExpandType{0, res &= RegisterNode<Ts>(detail::type_name<Ts>())...};
+    return res;
+#endif
 }
 
 template <class T>
@@ -63,12 +72,30 @@ bool RegisterNode(const std::string& name)
         name, []() { return std::make_shared<T>(); }, typeid(T));
 }
 
-template <class T>
+template <class T, class... Ts>
 bool DeregisterNode()
 {
-    auto name =
-        detail::NodeFactoryType::Instance().GetTypeIdentifier(typeid(T));
-    return detail::NodeFactoryType::Instance().Deregister(name);
+    // Lambda function for deregistering
+    bool res{true};
+    auto deregister = [&res](const std::type_info& i) {
+        auto name = detail::NodeFactoryType::Instance().GetTypeIdentifier(i);
+        res &= detail::NodeFactoryType::Instance().Deregister(name);
+    };
+    // Deregister the solo arg
+    deregister(typeid(T));
+    // Deregister the template argument pack
+#if __cplusplus >= 201703L
+    (deregister(typeid(Ts)), ...);
+#elif __cplusplus > 201103L
+    detail::ExpandType{0, (deregister(typeid(Ts)), 0)...};
+#endif
+    return res;
+}
+
+template <class T>
+std::string NodeName()
+{
+    return detail::NodeFactoryType::Instance().GetTypeIdentifier(typeid(T));
 }
 
 }  // namespace smgl

@@ -31,12 +31,19 @@ std::string type_name(const T& t);
  * Used until C++17, which includes parameter pack folding. See:
  * https://stackoverflow.com/a/17340003
  *
- * @code
+ * ```{.cpp}
+ * // C++17 built-in folding expression
+ * template<typename... Ts>
+ * void CallFooOnAll(Ts&&... ts) {
+ *     (foo(std::forward<Ts>(ts)), ...);
+ * }
+ *
+ * // C++11 "folding" using ExpandType
  * template<typename... Ts>
  * void CallFooOnAll(Ts&&... ts) {
  *     ExpandType{0, (foo(std::forward<Ts>(ts)), 0)...}
  * }
- * @endcode
+ * ```
  */
 struct ExpandType {
     /** Constructor */

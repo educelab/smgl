@@ -28,6 +28,7 @@ endif()
 
 doxygen_add_docs(
     docs
+    ${PROJECT_SOURCE_DIR}/docs/pages/
     ${PROJECT_SOURCE_DIR}/docs/index.md
     ${PROJECT_SOURCE_DIR}/docs/Modules.dox
     ${PROJECT_SOURCE_DIR}/smgl/include/

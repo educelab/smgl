@@ -35,12 +35,12 @@ public:
     InputPort<T> rhs{&rhs_};
     OutputPort<T> result{&result_};
 
-    AdditionNode() : Node()
+    AdditionNode()
     {
         registerInputPort("lhs", lhs);
         registerInputPort("rhs", rhs);
         registerOutputPort("result", result);
-        compute = [=]() { result_ = lhs_ + rhs_; };
+        compute = [this]() { result_ = lhs_ + rhs_; };
     }
 
 private:
@@ -75,12 +75,12 @@ public:
     InputPort<T> rhs{&rhs_};
     OutputPort<T> result{&result_};
 
-    SubtractionNode() : Node()
+    SubtractionNode()
     {
         registerInputPort("lhs", lhs);
         registerInputPort("rhs", rhs);
         registerOutputPort("result", result);
-        compute = [=]() { result_ = lhs_ - rhs_; };
+        compute = [this]() { result_ = lhs_ - rhs_; };
     }
 
 private:
@@ -115,12 +115,12 @@ public:
     InputPort<T> rhs{&rhs_};
     OutputPort<T> result{&result_};
 
-    MultiplyNode() : Node()
+    MultiplyNode()
     {
         registerInputPort("lhs", lhs);
         registerInputPort("rhs", rhs);
         registerOutputPort("result", result);
-        compute = [=]() { result_ = lhs_ * rhs_; };
+        compute = [this]() { result_ = lhs_ * rhs_; };
     }
 
 private:
@@ -151,10 +151,10 @@ template <typename T>
 class ClassWrapperNode : public Node
 {
 public:
-    InputPort<T> set{[=](T i) { hidden_.target(i); }};
-    OutputPort<T> get{[=]() { return hidden_.source(); }};
+    InputPort<T> set{&hidden_, &TrivialClass<T>::target};
+    OutputPort<T> get{&hidden_, &TrivialClass<T>::source};
 
-    ClassWrapperNode() : Node()
+    ClassWrapperNode()
     {
         registerInputPort("set", set);
         registerOutputPort("get", get);
@@ -179,12 +179,13 @@ template <class T>
 class PassThroughNode : public Node
 {
 public:
-    PassThroughNode() : Node()
+    PassThroughNode()
     {
         registerInputPort("set", set);
         registerOutputPort("get", get);
     }
-    explicit PassThroughNode(T val) : Node(), val_(val)
+
+    explicit PassThroughNode(T val) : val_(val)
     {
         registerInputPort("set", set);
         registerOutputPort("get", get);
@@ -213,7 +214,7 @@ private:
 class StringCachingNode : public Node
 {
 public:
-    StringCachingNode() { registerInputPort("value", value); }
+    StringCachingNode() : Node{true} { registerInputPort("value", value); }
 
     InputPort<std::string> value{&value_};
 
@@ -221,7 +222,7 @@ private:
     Metadata serialize_(
         bool useCache, const filesystem::path& cacheDir) override
     {
-        filesystem::path path = cacheDir / "value.txt";
+        auto path = cacheDir / "value.txt";
         if (useCache) {
             std::ofstream fs(path.string());
             fs << value_;
@@ -233,7 +234,7 @@ private:
     void deserialize_(
         const Metadata& data, const filesystem::path& cacheDir) override
     {
-        filesystem::path path = cacheDir / "value.txt";
+        auto path = cacheDir / "value.txt";
         std::ifstream fs(path.string());
         std::getline(fs, value_);
         fs.close();

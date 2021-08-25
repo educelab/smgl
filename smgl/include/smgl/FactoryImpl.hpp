@@ -39,6 +39,32 @@ template <
     typename P,
     template <typename, class>
     class E>
+void Factory<B, I, A, P, E>::Reserve(std::size_t count)
+{
+    typeToIDMap_.reserve(count);
+    idToCreatorMap_.reserve(count);
+}
+
+template <
+    class B,
+    typename I,
+    class A,
+    typename P,
+    template <typename, class>
+    class E>
+void Factory<B, I, A, P, E>::ReserveAdditional(std::size_t count)
+{
+    typeToIDMap_.reserve(count + typeToIDMap_.size());
+    idToCreatorMap_.reserve(count + idToCreatorMap_.size());
+}
+
+template <
+    class B,
+    typename I,
+    class A,
+    typename P,
+    template <typename, class>
+    class E>
 bool Factory<B, I, A, P, E>::Register(
     const I& id, P creator, const std::type_info& info)
 {

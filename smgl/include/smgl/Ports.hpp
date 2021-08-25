@@ -147,6 +147,9 @@ public:
      */
     std::size_t numConnections() const;
 
+    /** @copydoc smgl::connect() */
+    virtual Input& operator=(Output& op);
+
 protected:
     /** Default constructor */
     Input();
@@ -263,7 +266,7 @@ public:
     InputPort<T>& operator=(T v);
 
     /** @copydoc smgl::connect() */
-    InputPort<T>& operator=(Output& op);
+    InputPort<T>& operator=(Output& op) override;
 
     /** @brief Update the target with the most recently posted update */
     bool update() override;

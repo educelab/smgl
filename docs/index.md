@@ -50,51 +50,7 @@ The CMake project provides a number of flags for configuring the build:
 
 ## Usage
 ### Building Custom Nodes
-```{.cpp}
-#include <smgl/Node.hpp>
-#include <smgl/Ports.hpp>
-
-class SumNode : public smgl::Node 
-{
-private:
-    // Internal state variables
-    int lhs_{0};
-    int rhs_{0};
-    int res_{0};
-public:
-    // InputPort receives values and places them in targets
-    smgl::InputPort<int> lhs{&lhs_};
-    smgl::InputPort<int> rhs{&rhs_};
-    // OutputPort gets values from a source and posts them to connections
-    smgl::OutputPort<int> result{&res_};
-    
-    SumNode() : Node() {
-        // Register all ports for serialization
-        registerInputPort("lhs", lhs);
-        registerInputPort("rhs", rhs);
-        registerOutputPort("result", result);
-        
-        // Define computation function
-        compute = [=]() { result = lhs + rhs; };
-    }
-private:
-    // Write internal state to Metadata
-    smgl::Metadata serialize_(bool useCache, const smgl::filesystem::path& cacheDir) override {
-        return {
-            {"lhs", lhs_},
-            {"rhs", rhs_},
-            {"result", result_},
-        };
-    }
-    
-    // Load internal state from Metadata 
-    void deserialize_(const smgl::Metadata& data, const smgl::filesystem::path& cacheDir) override {
-        lhs_ = data["lhs"].get<T>();
-        rhs_ = data["rhs"].get<T>();
-        result_ = data["result"].get<T>();
-    }
-};
-```
+See the [Building custom nodes](building-custom-nodes.html) tutorial.
 
 ### Building Graphs
 ```{.cpp}
@@ -129,18 +85,18 @@ std::cout << multOp->result() << std::endl; // 12
 ### Serialization
 Smeagol supports two different methods of graph serialization.
 **Explicit serialization** writes the graph state to disk when explicitly
-requested by a call to `Graph::Save`. **Automatic caching** writes the graph
-state to disk when `Graph::update` is called and continuously updates the
+requested by a call to smgl::Graph::Save. **Automatic caching** writes the graph
+state to disk when smgl::Graph::update is called and continuously updates the
 cache file as Nodes complete execution. For both methods, Nodes must be
 registered with the Node factory in order for serialization to work correctly.
 
 #### Explicit serialization
 This example demonstrates writing the graph state to disk a single time using
-`Graph::Save`. This will write all nodes, connections, and intermediate results
-to disk. The location of the intermediate results relative to the provided
-JSON file path is controlled by `Graph::setCacheType`. To only write the JSON
-file and not the intermediate results, omit the optional `writeCache` argument
-to `Graph::Save`.
+smgl::Graph::Save. This will write all nodes, connections, and intermediate 
+results to disk. The location of the intermediate results relative to the 
+provided JSON file path is controlled by smgl::Graph::setCacheType. To only 
+write the JSON file and not the intermediate results, omit the optional 
+`writeCache` argument to smgl::Graph::Save.
 
 ```{.cpp}
 #include <smgl/Graph.hpp>
@@ -167,7 +123,7 @@ auto gClone = smgl::Graph::Load("Graph.json");
 This example illustrates writing the graph to disk repeatedly as the nodes are
 updated. This will write all nodes, connections, and intermediate results to
 disk. The location of the intermediate results relative to the cache file path
-is controlled by `Graph::setCacheType`.
+is controlled by smgl::Graph::setCacheType.
 
 ```{.cpp}
 #include <smgl/Graph.hpp>
@@ -196,7 +152,7 @@ auto gClone = smgl::Graph::Load("CachedGraph.json");
 
 ### Graph Visualization
 Smeagol supports basic graph visualization by writing Dot files compatible with
-the [Graphviz](https://graphviz.org/) software library. Use `smgl::WriteDotFile`
+the [Graphviz](https://graphviz.org/) software library. Use smgl::WriteDotFile
 to write a graph to disk, and then use `dot` to convert this file into an image.
 
 Write the graph to a dot file:

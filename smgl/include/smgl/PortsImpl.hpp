@@ -63,7 +63,7 @@ InputPort<T>& InputPort<T>::operator=(T v)
 template <typename T>
 InputPort<T>& InputPort<T>::operator=(Output& op)
 {
-    smgl::connect(op, *this);
+    Input::operator=(op);
     return *this;
 }
 

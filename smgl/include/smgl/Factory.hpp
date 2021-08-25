@@ -76,6 +76,12 @@ public:
     /** Convenience alias for identifiers */
     using IDType = IdentifierType;
 
+    /** Reserve space for exactly N registrations */
+    void Reserve(std::size_t count);
+
+    /** Reserve space for an additional N registrations */
+    void ReserveAdditional(std::size_t count);
+
     /** Register identifier, type, and creation functor */
     bool Register(
         const IDType& id, ProductCreator creator, const std::type_info& info);
