@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
-project(smeagol VERSION 0.9.0)
+project(smgl VERSION 0.9.0)
 
 # Setup project directories
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
@@ -25,7 +25,7 @@ if(SMGL_BUILD_DOCS)
 endif()
 
 # Tests #
-option(SMGL_BUILD_TESTS "Compile smeagol unit tests" off)
+option(SMGL_BUILD_TESTS "Compile smgl unit tests" off)
 if(SMGL_BUILD_TESTS)
     enable_testing()
     add_subdirectory(tests)

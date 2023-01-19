@@ -55,7 +55,7 @@ set_target_properties(smgl
 )
 install(
     TARGETS smgl
-    EXPORT smeagolTargets
+    EXPORT smglTargets
     ARCHIVE DESTINATION "lib"
     LIBRARY DESTINATION "lib"
     INCLUDES DESTINATION "include/smgl"

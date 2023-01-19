@@ -94,8 +94,8 @@ private:
 ```
 
 The smgl::Metadata class is a dict-like type which provides easy serialization 
-of many built-in types to the JSON format used by smeagol. For data which is 
-not easily serialized to JSON, every smgl::Node can request that smeagol 
+of many built-in types to the JSON format used by smgl. For data which is 
+not easily serialized to JSON, every smgl::Node can request that smgl 
 create a cache directory where arbitrary data can be saved and loaded during 
 (de)serialization. 
 

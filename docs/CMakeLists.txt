@@ -17,7 +17,7 @@ set(DOXYGEN_QUIET YES)
 
 # Setup tag files
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html/doxy-tags/)
-set(DOXYGEN_GENERATE_TAGFILE ${CMAKE_CURRENT_BINARY_DIR}/html/doxy-tags/educelab_smeagol.tag)
+set(DOXYGEN_GENERATE_TAGFILE ${CMAKE_CURRENT_BINARY_DIR}/html/doxy-tags/educelab_smgl.tag)
 file(COPY doxy-tags/ DESTINATION html/doxy-tags/)
 set(DOXYGEN_TAGFILES "doxy-tags/cppreference-doxygen-web.tag.xml=http://en.cppreference.com/w/")
 

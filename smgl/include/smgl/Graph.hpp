@@ -151,7 +151,7 @@ public:
      * @brief Load a Graph from a JSON file
      *
      * @note Loaded Graph does not share state with any preexisting Graph. See
-     * <a href="https://code.cs.uky.edu/csparker247/smeagol/-/issues/9">issue
+     * <a href="https://code.cs.uky.edu/csparker247/smgl/-/issues/9">issue
      * #9</a>.
      *
      * @param path Path to input file in the JSON format

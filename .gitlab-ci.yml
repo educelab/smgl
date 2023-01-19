@@ -63,21 +63,21 @@ test:debian:buster:boost:
     tags:
         - docker
 
-test:ubuntu:21.04:
+test:ubuntu:22.04:
     extends: .build_and_test_linux
     stage: test
     needs: []
-    image: ubuntu:21.04
+    image: ubuntu:22.04
     variables:
         EXTRA_CMAKE_FLAGS: "-DSMGL_BUILD_TESTS=ON"
     tags:
         - docker
 
-test:ubuntu:21.04:boost:
+test:ubuntu:22.04:boost:
     extends: .build_and_test_linux
     stage: test
     needs: []
-    image: ubuntu:21.04
+    image: ubuntu:22.04
     variables:
         APT_PACKAGES: "build-essential cmake ninja-build git libboost-filesystem-dev"
         EXTRA_CMAKE_FLAGS: "-DSMGL_BUILD_TESTS=ON -DSMGL_USE_BOOSTFS=ON"

@@ -35,7 +35,7 @@ set(tests
 
 foreach(src ${tests})
     get_filename_component(filename ${src} NAME_WE)
-    set(testname smeagol_${filename})
+    set(testname smgl_${filename})
     add_executable(${testname} ${src})
     target_link_libraries(${testname}
         smgl::smgl
