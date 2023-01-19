@@ -1,13 +1,13 @@
-# Contributing to smeagol
+# Contributing to smgl
 
-Smeagol is maintained by [EduceLab](https://cs.uky.edu/dri) and developed in 
+smgl is maintained by [EduceLab](https://cs.uky.edu/dri) and developed in 
 collaboration with our community of contributors. We welcome bug reports,
 feature requests, and code contributions.
 
 ## Bug Reports and Feature Requests
 If you think you have found a bug or if you would like to request a new 
 feature, please check our 
-[issue tracker](https://gitlab.com/educelab/smeagol/-/issues) to make sure
+[issue tracker](https://gitlab.com/educelab/smgl/-/issues) to make sure
 an issue has not already been opened on your topic.
 
 ## Workflow

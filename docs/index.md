@@ -1,9 +1,9 @@
-**smeagol** is a C++14 library for creating custom dataflow pipelines that are
+**smgl** is a C++14 library for creating custom dataflow pipelines that are
 instrumented for serialization. It was designed to make it easy to convert
 existing processing workflows into **repeatable** and **observable** pipelines
 for the purposes of experimental reporting, reliability, and validation.
 
-View the latest source code on [GitLab](https://gitlab.com/educelab/smeagol).
+View the latest source code on [GitLab](https://gitlab.com/educelab/smgl).
 
 ## Requirements
 - CMake 3.15+
@@ -27,11 +27,11 @@ make && make install
 ```
 
 This will install the headers and library to your default system path and
-provide an easy method to link smeagol against your own CMake project:
+provide an easy method to link smgl against your own CMake project:
 
 ```
-# Find smeagol libraries
-find_package(smeagol REQUIRED)
+# Find smgl libraries
+find_package(smgl REQUIRED)
 
 # Link to an executable
 add_executable(MyTarget main.cpp)
@@ -83,7 +83,7 @@ std::cout << multOp->result() << std::endl; // 12
 ```
 
 ### Serialization
-Smeagol supports two different methods of graph serialization.
+smgl supports two different methods of graph serialization.
 **Explicit serialization** writes the graph state to disk when explicitly
 requested by a call to smgl::Graph::Save. **Automatic caching** writes the graph
 state to disk when smgl::Graph::update is called and continuously updates the
@@ -151,7 +151,7 @@ auto gClone = smgl::Graph::Load("CachedGraph.json");
 ```
 
 ### Graph Visualization
-Smeagol supports basic graph visualization by writing Dot files compatible with
+smgl supports basic graph visualization by writing Dot files compatible with
 the [Graphviz](https://graphviz.org/) software library. Use smgl::WriteDotFile
 to write a graph to disk, and then use `dot` to convert this file into an image.
 
@@ -180,7 +180,7 @@ $ dot -Tpng -o graphviz.png graph.gv
 ## Related Projects
 This library is not meant for everyone. Its primary purpose is for building
 workflows that are instrumented with metadata, but there are many other use
-cases for dataflow libraries. If smeagol doesn't fit your needs, perhaps on of
+cases for dataflow libraries. If smgl doesn't fit your needs, perhaps on of
 these libraries will:
 - [RaftLib](https://github.com/RaftLib/RaftLib)
 - [DSPatch](https://github.com/cross-platform/dspatch)

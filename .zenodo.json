@@ -17,12 +17,12 @@
   "related_identifiers": [
     {
       "scheme": "url",
-      "identifier": "https://gitlab.com/educelab/smeagol/",
+      "identifier": "https://gitlab.com/educelab/smgl/",
       "relation": "isSupplementTo"
     },
     {
       "scheme": "url",
-      "identifier": "https://github.com/educelab/smeagol/",
+      "identifier": "https://github.com/educelab/smgl/",
       "relation": "isSupplementTo"
     }
   ]

@@ -1,26 +1,26 @@
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
-    smeagolConfigVersion.cmake
+    smglConfigVersion.cmake
     COMPATIBILITY AnyNewerVersion
 )
-configure_file(cmake/smeagolConfig.cmake.in smeagolConfig.cmake @ONLY)
+configure_file(cmake/smglConfig.cmake.in smglConfig.cmake @ONLY)
 
 install(
-    EXPORT smeagolTargets
-    FILE smeagolTargets.cmake
+    EXPORT smglTargets
+    FILE smglTargets.cmake
     NAMESPACE smgl::
-    DESTINATION lib/cmake/smeagol
+    DESTINATION lib/cmake/smgl
 )
 
 install(
     FILES
-        "${CMAKE_CURRENT_BINARY_DIR}/smeagolConfig.cmake"
-        "${CMAKE_CURRENT_BINARY_DIR}/smeagolConfigVersion.cmake"
-    DESTINATION lib/cmake/smeagol
+        "${CMAKE_CURRENT_BINARY_DIR}/smglConfig.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/smglConfigVersion.cmake"
+    DESTINATION lib/cmake/smgl
 )
 
 install(
     FILES
         "${CMAKE_MODULE_PATH}/FindFilesystem.cmake"
-    DESTINATION lib/cmake/smeagol/Modules
+    DESTINATION lib/cmake/smgl/Modules
 )

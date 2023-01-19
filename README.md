@@ -1,6 +1,6 @@
-[![smeagol](graphics/logo/svg/text-sub-color.svg)](https://gitlab.com/educelab/smeagol)
+[![smgl](graphics/logo/svg/banner.svg)](https://gitlab.com/educelab/smgl)
 
-**smeagol** is a C++14 library for creating custom dataflow pipelines that are 
+**smgl** is a C++14 library for creating custom dataflow pipelines that are 
 instrumented for serialization. It was designed to make it easy to convert 
 existing processing workflows into **repeatable** and **observable** pipelines 
 for the purposes of experimental reporting, reliability, and validation.
@@ -29,11 +29,11 @@ make && make install
 ```
 
 This will install the headers and library to your default system path and 
-provide an easy method to link smeagol against your own CMake project:
+provide an easy method to link smgl against your own CMake project:
 
 ```cmake
-# Find smeagol libraries
-find_package(smeagol REQUIRED)
+# Find smgl libraries
+find_package(smgl REQUIRED)
 
 # Link to an executable
 add_executable(MyTarget main.cpp)
@@ -52,7 +52,7 @@ The CMake project provides a number of flags for configuring the build:
 
 ## Usage
 ### Building Custom Nodes
-See the [Building custom nodes](https://educelab.gitlab.io/smeagol/docs/building-custom-nodes.html) tutorial.
+See the [Building custom nodes](https://educelab.gitlab.io/smgl/docs/building-custom-nodes.html) tutorial.
 
 ### Building Graphs
 ```c++
@@ -87,7 +87,7 @@ std::cout << multOp->result() << std::endl; // 12
 ```
 
 ### Serialization
-Smeagol supports two different methods of graph serialization. 
+smgl supports two different methods of graph serialization. 
 **Explicit serialization** writes the graph state to disk when explicitly 
 requested by a call to `Graph::Save`. **Automatic caching** writes the graph 
 state to disk when `Graph::update` is called and continuously updates the 
@@ -155,7 +155,7 @@ auto gClone = smgl::Graph::Load("CachedGraph.json");
 ```
 
 ### Graph Visualization
-Smeagol supports basic graph visualization by writing Dot files compatible with 
+smgl supports basic graph visualization by writing Dot files compatible with 
 the [Graphviz](https://graphviz.org/) software library. Use `smgl::WriteDotFile`
 to write a graph to disk, and then use `dot` to convert this file into an image.
 
@@ -182,7 +182,7 @@ $ dot -Tpng -o graphviz.png graph.gv
 ![Basic Graph Visualization](graphics/examples/graphviz.png)
 
 ## Documentation
-Visit our full library documentation [here](https://educelab.gitlab.io/smeagol/docs/).
+Visit our full library documentation [here](https://educelab.gitlab.io/smgl/docs/).
 
 ## Contributing
 Please see [CONTRIBUTING.md](CONTRIBUTING.md) for more information.
@@ -190,7 +190,7 @@ Please see [CONTRIBUTING.md](CONTRIBUTING.md) for more information.
 ## Related Projects
 This library is not meant for everyone. Its primary purpose is for building 
 workflows that are instrumented with metadata, but there are many other use 
-cases for dataflow libraries. If smeagol doesn't fit your needs, perhaps on of
+cases for dataflow libraries. If smgl doesn't fit your needs, perhaps on of
 these libraries will:
 - [RaftLib](https://github.com/RaftLib/RaftLib)
 - [DSPatch](https://github.com/cross-platform/dspatch)
