@@ -6,7 +6,7 @@ for the purposes of experimental reporting, reliability, and validation.
 View the latest source code on [GitLab](https://gitlab.com/educelab/smgl).
 
 ## Requirements
-- CMake 3.15+
+- CMake 3.24+
 - C++14 compiler with Itanium C++ ABI support (clang, gcc, etc.)
 - [JSON for Modern C++](https://github.com/nlohmann/json) 3.9.1+
 - (optional) Boost.Filesystem 1.58+
