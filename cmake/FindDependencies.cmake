@@ -9,7 +9,8 @@ option(SMGL_BUILD_JSON "Build in-source JSON library" ON)
 if(SMGL_BUILD_JSON)
     FetchContent_Declare(
         json
-        URL https://github.com/nlohmann/json/archive/6471a63.tar.gz
+        URL https://github.com/nlohmann/json/archive/v3.11.2.tar.gz
+        DOWNLOAD_EXTRACT_TIMESTAMP ON
     )
 
     FetchContent_GetProperties(json)

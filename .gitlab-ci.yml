@@ -2,7 +2,6 @@
 .build_script: &build_script
     - mkdir -p build/
     - cd build/
-    - echo $CMAKE_CMD
     - $CMAKE_CMD
     - ninja
 
@@ -37,27 +36,27 @@
           export CMAKE_CMD="cmake -GNinja $EXTRA_CMAKE_FLAGS .."
 
 ### Tests ###
-test:debian:buster:
+test:debian:bullseye:
     extends: .build_and_test_linux
     stage: test
     needs: []
-    image: debian:buster-backports
+    image: debian:bullseye-backports
     variables:
         APT_PACKAGES: "build-essential ninja-build git"
-        BACKPORTS_TARGET: "buster-backports"
+        BACKPORTS_TARGET: "bullseye-backports"
         BACKPORTS_PACKAGES: "cmake"
         EXTRA_CMAKE_FLAGS: "-DSMGL_BUILD_TESTS=ON"
     tags:
         - docker
 
-test:debian:buster:boost:
+test:debian:bullseye:boost:
     extends: .build_and_test_linux
     stage: test
     needs: []
-    image: debian:buster-backports
+    image: debian:bullseye-backports
     variables:
         APT_PACKAGES: "build-essential ninja-build git libboost-filesystem-dev"
-        BACKPORTS_TARGET: "buster-backports"
+        BACKPORTS_TARGET: "bullseye-backports"
         BACKPORTS_PACKAGES: "cmake"
         EXTRA_CMAKE_FLAGS: "-DSMGL_BUILD_TESTS=ON -DSMGL_USE_BOOSTFS=ON"
     tags:
@@ -69,7 +68,16 @@ test:ubuntu:22.04:
     needs: []
     image: ubuntu:22.04
     variables:
+        APT_PACKAGES: "build-essential curl ninja-build git"
         EXTRA_CMAKE_FLAGS: "-DSMGL_BUILD_TESTS=ON"
+    before_script:
+        - |
+          apt update
+          apt install -y $APT_PACKAGES
+          [ ! -z "$BACKPORTS_TARGET" ] && [ ! -z "$BACKPORTS_PACKAGES" ] && apt -t $BACKPORTS_TARGET install -y $BACKPORTS_PACKAGES
+          curl -o install_cmake.sh -L https://github.com/Kitware/CMake/releases/download/v3.26.4/cmake-3.26.4-linux-x86_64.sh
+          /bin/sh install_cmake.sh --skip-license --prefix=/usr/local
+          export CMAKE_CMD="cmake -GNinja $EXTRA_CMAKE_FLAGS .."
     tags:
         - docker
 
@@ -79,20 +87,49 @@ test:ubuntu:22.04:boost:
     needs: []
     image: ubuntu:22.04
     variables:
-        APT_PACKAGES: "build-essential cmake ninja-build git libboost-filesystem-dev"
+        APT_PACKAGES: "build-essential curl ninja-build git libboost-filesystem-dev"
         EXTRA_CMAKE_FLAGS: "-DSMGL_BUILD_TESTS=ON -DSMGL_USE_BOOSTFS=ON"
+    before_script:
+        - |
+          apt update
+          apt install -y $APT_PACKAGES
+          [ ! -z "$BACKPORTS_TARGET" ] && [ ! -z "$BACKPORTS_PACKAGES" ] && apt -t $BACKPORTS_TARGET install -y $BACKPORTS_PACKAGES
+          curl -o install_cmake.sh -L https://github.com/Kitware/CMake/releases/download/v3.26.4/cmake-3.26.4-linux-x86_64.sh
+          /bin/sh install_cmake.sh --skip-license --prefix=/usr/local
+          export CMAKE_CMD="cmake -GNinja $EXTRA_CMAKE_FLAGS .."
     tags:
         - docker
+
+test:macos:
+    extends: .build_and_test
+    stage: test
+    needs: []
+    variables:
+        EXTRA_CMAKE_FLAGS: "-DSMGL_BUILD_TESTS=ON"
+    tags:
+        - macos
+        - test
+
+test:macos:boost:
+    extends: .build_and_test
+    stage: test
+    needs: []
+    variables:
+        CMAKE_PREFIX_PATH: "/usr/local/educelab/vc-deps-1.7-static-release"
+        EXTRA_CMAKE_FLAGS: "-DSMGL_BUILD_TESTS=ON -DSMGL_USE_BOOSTFS=ON"
+    tags:
+        - macos
+        - test
 
 ### Docs ###
 pages:
     stage: deploy
     needs: []
-    image: debian:buster-backports
+    image: debian:bullseye-backports
     before_script:
         - apt-get update
         - apt-get install -y build-essential doxygen graphviz texlive ghostscript
-        - apt-get -t buster-backports install -y cmake
+        - apt-get -t bullseye-backports install -y cmake
     script:
         - mkdir -p build/
         - mkdir -p public/
