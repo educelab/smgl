@@ -27,10 +27,7 @@ enum LogLevel {
 /** @brief Set the library log level */
 void SetLogLevel(LogLevel level);
 
-/**
- * @brief Set the library log level from a string
- * @overload SetLogLevel(LogLevel)
- */
+/** @overload SetLogLevel(LogLevel) */
 void SetLogLevel(const std::string& level);
 
 /** @brief Get the library log level */
