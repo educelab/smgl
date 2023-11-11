@@ -2,7 +2,6 @@
 
 /** @file */
 
-#include <chrono>
 #include <exception>
 #include <functional>
 #include <tuple>
@@ -30,18 +29,13 @@ protected:
     std::string msg_;
 };
 
-/** Timestamp clock type */
-using Clock = std::chrono::steady_clock;
-/** Timestamp type */
-using Timestamp = Clock::time_point;
-
 /** @brief Typed update sent over connections */
 template <typename T>
 struct Update {
-    /** Time of update generation */
-    Timestamp time;
     /** Value of update */
     T val;
+    /** Update tick */
+    std::size_t tick{0};
 };
 
 /** @cond */
@@ -96,20 +90,20 @@ struct Connection {
 class Port : public UniquelyIdentifiable
 {
 public:
-    /** Port status types */
-    enum class Status { Idle, Waiting, Queued, Error };
+    /** Port state types */
+    enum class State { Idle, Waiting, Queued, Error };
 
     /** Update the port's target with any posted values */
     virtual bool update() = 0;
 
-    /** Notify a port of source status */
-    virtual void notify(Status s) = 0;
+    /** Notify a port of source state */
+    virtual void notify(State s) = 0;
 
-    /** Return the port's current status */
-    Status status() const;
+    /** Return the port's current state */
+    State state() const;
 
-    /** Set the port's status */
-    void setStatus(Status s);
+    /** Set the port's state */
+    void setState(State s);
 
     /** Set the port's parent node */
     void setParent(Node* p);
@@ -123,12 +117,12 @@ public:
 protected:
     /** Default constructor */
     Port() = default;
-    /** Construct with status */
-    explicit Port(Status s);
+    /** Construct with state */
+    explicit Port(State s);
     /** Default destructor */
     virtual ~Port() = default;
-    /** Current status */
-    Status status_{Status::Idle};
+    /** Current state */
+    State state_{State::Idle};
     /** Parent node */
     Node* parent_{nullptr};
 };
@@ -163,8 +157,8 @@ protected:
 
     /** Pointer to connected output port */
     Output* src_{nullptr};
-    /** Timestamp of last received update */
-    Timestamp last_updated_;
+    /** Tick of last received update */
+    std::size_t last_updated_{0};
 
 private:
     /** Friend: smgl::connect */
@@ -271,8 +265,8 @@ public:
     /** @brief Update the target with the most recently posted update */
     bool update() override;
 
-    /** @brief Receive a status update from a connected port */
-    void notify(Status s) override;
+    /** @brief Receive a state update from a connected port */
+    void notify(State s) override;
 
     /** @brief Get port metadata */
     Metadata serialize() override;
@@ -362,8 +356,8 @@ public:
     /** @brief Update all active connections with the value of the source */
     bool update() override;
 
-    /** @brief Notify all active connections of this port's status */
-    void notify(Status s) override;
+    /** @brief Notify all active connections of this port's state */
+    void notify(State s) override;
 
     /** @brief Get port metadata */
     Metadata serialize() override;

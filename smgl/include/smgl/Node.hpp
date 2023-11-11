@@ -69,8 +69,8 @@ namespace smgl
 class Node : public UniquelyIdentifiable
 {
 public:
-    /** Node update status */
-    enum class Status {
+    /** Node update state */
+    enum class State {
         /** Does not need to be updated */
         Idle,
         /** Waiting on an upstream dependency to update */
@@ -169,8 +169,8 @@ public:
     /** @brief Get the number of active output connections */
     size_t getNumberOfOutputConnections() const;
 
-    /** @brief Get the current update status */
-    Status status();
+    /** @brief Get the current update state */
+    State state();
 
 protected:
     /** Protected constructor can only be called by child class */
@@ -333,8 +333,8 @@ private:
      */
     bool update_input_ports_();
 
-    /** Notify output ports of this Node's update status */
-    void notify_output_ports_(Port::Status s);
+    /** Notify output ports of this Node's update state */
+    void notify_output_ports_(Port::State s);
 
     /** Send queued update on all output ports */
     bool update_output_ports_();
@@ -358,8 +358,8 @@ private:
     std::unordered_map<Uuid, Output*> outputs_by_uuid_;
     /** Stores registered outputs by registered name */
     std::map<std::string, Output*> outputs_by_name_;
-    /** Current Node status */
-    Status status_{Status::Idle};
+    /** Current Node state */
+    State state_{State::Idle};
 };
 
 namespace detail

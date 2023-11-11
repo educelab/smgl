@@ -26,25 +26,25 @@ void smgl::operator<<(Input& ip, Output& op) { connect(op, ip); }
 ///// Port /////
 ////////////////
 
-Port::Port(Port::Status s) : status_{s} {}
+Port::Port(Port::State s) : state_{s} {}
 
 void Port::setParent(Node* p) { parent_ = p; }
 
-Port::Status Port::status() const { return status_; }
+Port::State Port::state() const { return state_; }
 
-void Port::setStatus(Port::Status s) { status_ = s; }
+void Port::setState(State s) { state_ = s; }
 
 //////////////////
 ///// Output /////
 //////////////////
 
-Output::Output() : Port(Status::Waiting) {}
+Output::Output() : Port(State::Waiting) {}
 
 /////////////////
 ///// Input /////
 /////////////////
 
-Input::Input() : Port(Status::Idle) {}
+Input::Input() : Port(State::Idle) {}
 
 Input::~Input()
 {

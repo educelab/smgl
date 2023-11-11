@@ -21,6 +21,10 @@ TEST(Uuid, StringFunctions)
     auto str = uuid.string();
     EXPECT_EQ(str, uuidStr);
 
+    // Get the short string
+    auto shortStr = uuid.short_string();
+    EXPECT_EQ(shortStr, "2d243fb2");
+
     // Construct a new Uuid from the provided string
     auto uuidClone = Uuid::FromString(str);
     EXPECT_FALSE(uuidClone.is_nil());

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "smgl/Graph.hpp"
+#include "smgl/Logging.hpp"
 #include "smgl/Metadata.hpp"
 #include "smgl/Node.hpp"
 #include "smgl/Ports.hpp"
