@@ -61,6 +61,19 @@ std::string Uuid::string() const
     return ss.str();
 }
 
+std::string Uuid::short_string() const
+{
+    std::stringstream ss;
+    ss << std::hex << std::setfill('0');
+    for (size_t idx = 0; idx < buffer_.size() / 4; idx++) {
+        if (idx == 4 or idx == 6 or idx == 8 or idx == 10) {
+            ss << '\u002D';
+        }
+        ss << std::setw(2) << static_cast<unsigned>(buffer_[idx]);
+    }
+    return ss.str();
+}
+
 Uuid Uuid::FromString(const std::string& str)
 {
     // TODO: 13th character (first digit of 7th byte) is version number

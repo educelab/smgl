@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.24 FATAL_ERROR)
-project(smgl VERSION 0.9.1)
+cmake_minimum_required(VERSION 3.24..3.27 FATAL_ERROR)
+project(smgl VERSION 0.10.0)
 
 # Setup project directories
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)

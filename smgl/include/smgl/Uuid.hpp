@@ -43,6 +43,14 @@ public:
     std::string string() const;
 
     /**
+     * @brief Get a string representation of the short UUID
+     *
+     * Gets a string representation of the short UUID, the first 4 hexadecimal
+     * digits: aabbccdd
+     */
+    std::string short_string() const;
+
+    /**
      * @brief Construct a UUID from a string
      *
      *  @throws std::invalid_argument if str is not of the form:

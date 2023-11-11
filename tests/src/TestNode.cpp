@@ -59,7 +59,7 @@ TEST(Node, MultiOpPipeline)
     EXPECT_EQ(subOp.result(), 0);
 
     // Update all nodes.
-    // Don't need to check status: Ordered in op order
+    // Don't need to check state: Ordered in op order
     for (const auto& n : nodes) {
         n->update();
     }

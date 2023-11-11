@@ -2,6 +2,7 @@
 
 #include <functional>
 
+#include "smgl/LoggingPrivate.hpp"
 #include "smgl/Metadata.hpp"
 #include "smgl/Uuid.hpp"
 
@@ -44,7 +45,7 @@ void Graph::removeNode(const Node::Pointer& n)
 
 std::size_t Graph::size() const { return nodes_.size(); }
 
-Graph::Status Graph::status() const { return status_; }
+Graph::State Graph::state() const { return state_; }
 
 fs::path Graph::cacheFile() const
 {
@@ -73,51 +74,59 @@ const Metadata& Graph::projectMetadata() const { return extraMetadata_; }
 
 Metadata& Graph::projectMetadata() { return extraMetadata_; }
 
-Graph::Status Graph::update()
+Graph::State Graph::update()
 {
     // If already operating or in error, return
-    if (status_ == Status::Updating or status_ == Status::Error) {
-        return status_;
+    if (state_ == State::Updating or state_ == State::Error) {
+        LogDebug("[Graph::update]", "Graph updating or in error");
+        return state_;
     }
 
     // Schedule nodes
+    LogDebug("[Graph::update]", "Building schedule");
     auto schedule = Schedule(*this);
 
-    // Setup the cache info
+    // Set up the cache info
     auto cacheJson = cacheFile();
     auto cacheDir = CacheDir(cacheJson, cacheType_);
 
     // Write the graph starting state
     Metadata meta;
     if (cache_enabled_) {
+        LogDebug("[Graph::update]", "Initializing cache");
         meta = Serialize(*this, cache_enabled_, cacheDir);
         WriteMetadata(cacheJson, meta);
     }
 
     // Execute our schedule
-    status_ = Status::Updating;
+    state_ = State::Updating;
+    LogDebug("[Graph::update]", "Executing schedule");
     for (auto& n : schedule) {
-        auto status = n->status();
-        if (status == Node::Status::Ready) {
+        LogDebug(
+            "[Graph::update]", "Popped",
+            smgl::detail::type_name(*n) + "[" + n->uuid().short_string() + "]");
+        auto state = n->state();
+        if (state == Node::State::Ready) {
+            LogDebug("[Graph::update]", "Updating node");
             n->update();
 
             // Write to cache
             if (cache_enabled_) {
+                LogDebug("[Graph::update]", "Serializing node");
                 // Write to the cache
                 auto uuid = n->uuid().string();
                 meta["nodes"][uuid] = n->serialize(cache_enabled_, cacheDir);
                 WriteMetadata(cacheJson, meta);
             }
         } else if (
-            status == Node::Status::Waiting or
-            status == Node::Status::Updating) {
+            state == Node::State::Waiting or state == Node::State::Updating) {
             throw std::runtime_error("Node not ready but scheduled for update");
-        } else if (status == Node::Status::Error) {
+        } else if (state == Node::State::Error) {
             throw std::runtime_error("Node update error");
         }
     }
-    status_ = Status::Idle;
-    return status_;
+    state_ = State::Idle;
+    return state_;
 }
 
 Metadata Graph::Serialize(const Graph& g)
@@ -128,6 +137,7 @@ Metadata Graph::Serialize(const Graph& g)
 Metadata Graph::Serialize(
     const Graph& g, bool useCache, const fs::path& cacheDir)
 {
+    LogDebug("[Graph::Serialize]", "Initializing metadata");
     Metadata meta{
         {"software", "smgl"},
         {"type", "graph"},
@@ -136,6 +146,7 @@ Metadata Graph::Serialize(
 
     // Serialize the project metadata if available
     if (not g.projectMetadata().empty()) {
+        LogDebug("[Graph::Serialize]", "Adding project metadata");
         meta["project"] = g.projectMetadata();
     }
 
@@ -150,11 +161,13 @@ Metadata Graph::Serialize(
         }
     }
 
+    LogDebug("[Graph::Serialize]", "Serializing nodes");
     Metadata connections = Metadata::array();
     meta["nodes"] = Metadata::object();
     for (const auto& n : g.nodes_) {
         // Write node metadata
         auto uuid = n.first.string();
+        LogDebug("[Graph::Serialize]", "Node UUID:", uuid);
         meta["nodes"][uuid] = n.second->serialize(useCache, cacheDir);
 
         // Accumulate connections metadata
@@ -172,6 +185,7 @@ Metadata Graph::Serialize(
                  {"destPort", c.destPort->uuid().string()}});
         }
     }
+    LogDebug("[Graph::Serialize]", "Logging connections");
     meta["connections"] = connections;
 
     return meta;
@@ -182,12 +196,14 @@ void Graph::Save(const fs::path& path, const Graph& g, bool writeCache)
     // Construct the metadata
     auto meta = Serialize(g, writeCache, CacheDir(path, g.cacheType_));
 
+    LogDebug("[Graph::Save]", "Writing metadata");
     WriteMetadata(path, meta);
 }
 
 Graph Graph::Load(const fs::path& path)
 {
     // Load the metadata
+    LogDebug("[Graph::Load]", "Loading graph metadata");
     auto meta = LoadMetadata(path);
 
     // Validate the json file
@@ -198,7 +214,8 @@ Graph Graph::Load(const fs::path& path)
         throw std::runtime_error("File not a smgl Graph");
     }
 
-    // Setup a new graph
+    // Set up a new graph
+    LogDebug("[Graph::Load]", "Initializing Graph");
     Graph g;
     g.cacheFile_ = path;
 
@@ -218,8 +235,10 @@ Graph Graph::Load(const fs::path& path)
 
     // Load the graph UUID
     g.uuid_ = Uuid::FromString(meta["uuid"].get<std::string>());
+    LogDebug("[Graph::Load]", "Graph UUID:", g.uuid_.string());
 
     // Load the nodes
+    LogDebug("[Graph::Load]", "Loading nodes");
     for (const auto& node : meta["nodes"].items()) {
         auto nodeMeta = node.value();
         // Construct the node
@@ -234,6 +253,7 @@ Graph Graph::Load(const fs::path& path)
     }
 
     // Make connections
+    LogDebug("[Graph::Load]", "Loading connections");
     for (const auto& c : meta["connections"]) {
         // Get the nodes
         auto srcNID = Uuid::FromString(c["srcNode"].get<std::string>());
@@ -253,6 +273,8 @@ Graph Graph::Load(const fs::path& path)
 std::vector<std::string> Graph::CheckRegistration(const fs::path& path)
 {
     // Load the metadata
+    const std::string logPrefix{"[Graph::CheckRegistration(path)]"};
+    LogDebug(logPrefix, "Loading graph metadata");
     auto meta = LoadMetadata(path);
 
     // Validate the json file
@@ -265,11 +287,15 @@ std::vector<std::string> Graph::CheckRegistration(const fs::path& path)
 
     // Check that all nodes are registered
     std::vector<std::string> ids;
+    LogDebug(logPrefix, "Checking node types");
     for (const auto& node : meta["nodes"].items()) {
         auto nodeMeta = node.value();
         auto type = nodeMeta["type"].get<std::string>();
         if (not IsRegistered(type)) {
+            LogDebug(logPrefix, "Type:", type, "Registered:", false);
             ids.emplace_back(type);
+        } else {
+            LogDebug(logPrefix, "Type:", type, "Registered:", true);
         }
     }
     return ids;
@@ -277,11 +303,20 @@ std::vector<std::string> Graph::CheckRegistration(const fs::path& path)
 
 std::vector<std::string> Graph::CheckRegistration(const Graph& g)
 {
+    const std::string logPrefix{"[Graph::CheckRegistration(Graph)]"};
+    LogDebug(logPrefix, "Checking nodes");
     std::vector<std::string> ids;
     for (const auto& n : g.nodes_) {
         if (not IsRegistered(n.second)) {
+            LogDebug(
+                logPrefix, "Type:", smgl::detail::type_name(*n.second),
+                "Registered:", false);
             auto& nref = *n.second;
             ids.emplace_back(detail::type_name(nref));
+        } else {
+            LogDebug(
+                logPrefix, "Type:", smgl::NodeName(n.second),
+                "Registered:", true);
         }
     }
     return ids;
@@ -304,6 +339,7 @@ std::vector<Node::Pointer> Graph::Schedule(const Graph& g)
     // TODO: Detect whether DAG
 
     // Setup node list
+    LogDebug("[Graph::Schedule] Building node list");
     std::unordered_map<Uuid, NodeHelper::Ptr> ns;
     for (const auto& node : g.nodes_) {
         // Make the node helper
@@ -318,7 +354,8 @@ std::vector<Node::Pointer> Graph::Schedule(const Graph& g)
         ns[node.first] = n;
     }
 
-    // Setup DFS++
+    // Set up DFS++
+    LogDebug("[Graph::Schedule]", "Set up DFS");
     size_t time{0};
     using VisitFnT = std::function<void(NodeHelper::Ptr&)>;
     VisitFnT visit = [&time, &visit, &ns](NodeHelper::Ptr& u) {
@@ -341,6 +378,7 @@ std::vector<Node::Pointer> Graph::Schedule(const Graph& g)
     };
 
     // Run DFS++
+    LogDebug("[Graph::Schedule]", "Execute DFS");
     for (auto& n : ns) {
         if (n.second->inCns == 0) {
             visit(n.second);
@@ -348,6 +386,7 @@ std::vector<Node::Pointer> Graph::Schedule(const Graph& g)
     }
 
     // Sort the results by decreasing end time
+    LogDebug("[Graph::Schedule]", "Sorting results");
     std::vector<NodeHelper::Ptr> dfs;
     dfs.reserve(ns.size());
     for (const auto& n : ns) {
@@ -361,6 +400,7 @@ std::vector<Node::Pointer> Graph::Schedule(const Graph& g)
     });
 
     // Convert to a schedule
+    LogDebug("[Graph::Schedule]", "Building final schedule");
     std::vector<Node::Pointer> schedule;
     schedule.reserve(dfs.size());
     for (const auto& n : dfs) {

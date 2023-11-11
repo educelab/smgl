@@ -31,6 +31,7 @@ set(tests
     src/TestSingleton.cpp
     src/TestUuid.cpp
     src/TestGraphviz.cpp
+    src/TestLogging.cpp
 )
 
 foreach(src ${tests})

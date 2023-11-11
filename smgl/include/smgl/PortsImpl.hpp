@@ -28,14 +28,15 @@ void InputPort<T>::post(const Update<T>& u)
 {
     // TODO: Lock the queue
     queued_update_ = u;
-    status_ = Status::Queued;
+    queued_update_.tick = last_updated_ + 1;
+    state_ = State::Queued;
 }
 
 // For testing purposes only
 template <typename T>
 void InputPort<T>::post(T v, bool immediate)
 {
-    post({Clock::now(), v});
+    post(Update<T>{v, 0});
     if (immediate) {
         update();
     }
@@ -72,20 +73,20 @@ template <typename T>
 bool InputPort<T>::update()
 {
     // TODO: Lock the queue
-    if (queued_update_.time > last_updated_) {
+    if (queued_update_.tick > last_updated_) {
         target_(queued_update_.val);
-        last_updated_ = queued_update_.time;
-        status_ = Status::Idle;
+        last_updated_ = queued_update_.tick;
+        state_ = State::Idle;
         return true;
     }
     return false;
 }
 
 template <typename T>
-void InputPort<T>::notify(Status s)
+void InputPort<T>::notify(State s)
 {
-    last_updated_ = Clock::now();
-    status_ = s;
+    last_updated_++;
+    state_ = s;
 }
 
 template <typename T>
@@ -185,7 +186,7 @@ T OutputPort<T, Args...>::operator()()
 template <typename T, typename... Args>
 bool OutputPort<T, Args...>::update()
 {
-    Update<T> update{std::chrono::steady_clock::now(), val()};
+    Update<T> update{val()};
     for (const auto& c : connections_) {
         c.second.port->post(update);
     }
@@ -193,7 +194,7 @@ bool OutputPort<T, Args...>::update()
 }
 
 template <typename T, typename... Args>
-void OutputPort<T, Args...>::notify(Status s)
+void OutputPort<T, Args...>::notify(State s)
 {
     for (const auto& c : connections_) {
         c.second.port->notify(s);
@@ -237,8 +238,8 @@ void OutputPort<T, Args...>::connect(Input* ip)
     }
     auto typedIP = static_cast<InputPort<T>*>(ip);
     connections_[ip->uuid()] = {ip->parent_, typedIP};
-    if (status_ == Status::Idle) {
-        Update<T> update{std::chrono::steady_clock::now(), val()};
+    if (state_ == State::Idle) {
+        Update<T> update{val()};
         typedIP->post(update);
     }
 }

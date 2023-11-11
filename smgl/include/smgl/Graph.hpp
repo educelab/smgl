@@ -33,8 +33,8 @@ public:
     /** Graph version */
     constexpr static uint32_t Version{1};
 
-    /** Graph update status */
-    enum class Status { Idle, Updating, Error };
+    /** Graph state */
+    enum class State { Idle, Updating, Error };
 
     /** @brief Get a Node by Uuid */
     Node::Pointer operator[](const Uuid& uuid) const;
@@ -56,8 +56,8 @@ public:
     /** @brief Get the number of nodes in the graph */
     std::size_t size() const;
 
-    /** @brief Get the current update status */
-    Status status() const;
+    /** @brief Get the current graph state */
+    State state() const;
 
     /**
      * @brief Get the root cache file for the Graph
@@ -124,7 +124,7 @@ public:
      *
      * Schedules the Nodes of the Graph and update them as needed.
      */
-    Status update();
+    State update();
 
     /**
      * @brief Serialize a Graph to a Metadata object
@@ -199,12 +199,12 @@ private:
     filesystem::path cacheFile_;
     /** Cache type */
     CacheType cacheType_{CacheType::Subdirectory};
-    /** Cache enabled status */
+    /** Cache enabled state */
     bool cache_enabled_{false};
     /** List of Graph's nodes */
     std::unordered_map<Uuid, Node::Pointer> nodes_;
-    /** Graph's update status */
-    Status status_{Status::Idle};
+    /** Graph state */
+    State state_{State::Idle};
     /** Extra metadata */
     Metadata extraMetadata_;
 

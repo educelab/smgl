@@ -8,6 +8,7 @@ set(public_hdrs
     include/smgl/GraphImpl.hpp
     include/smgl/Graphviz.hpp
     include/smgl/GraphvizImpl.hpp
+    include/smgl/Logging.hpp
     include/smgl/Metadata.hpp
     include/smgl/Node.hpp
     include/smgl/NodeImpl.hpp
@@ -24,6 +25,7 @@ set(public_hdrs
 set(srcs
     src/Graph.cpp
     src/Graphviz.cpp
+    src/Logging.cpp
     src/Metadata.cpp
     src/Node.cpp
     src/Ports.cpp
