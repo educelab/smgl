@@ -12,7 +12,7 @@ void smgl::WriteMetadata(const filesystem::path& path, const Metadata& m)
     o << std::setw(4) << m << std::endl;
 }
 
-Metadata smgl::LoadMetadata(const filesystem::path& path)
+auto smgl::LoadMetadata(const filesystem::path& path) -> Metadata
 {
     Metadata m;
     std::ifstream i(path.string());

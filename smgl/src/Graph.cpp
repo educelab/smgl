@@ -15,17 +15,16 @@ namespace fs = filesystem;
 constexpr std::uint32_t Graph::Version;
 #endif
 
-inline fs::path CacheDir(const fs::path& json, CacheType t)
+inline auto CacheDir(const fs::path& json, CacheType t) -> fs::path
 {
-    switch (t) {
-        case CacheType::Adjacent:
-            return json.parent_path();
-        case CacheType::Subdirectory:
-            return json.parent_path() / (json.stem().string() + "_cache");
+    if (t == CacheType::Adjacent) {
+        return json.parent_path();
     }
+    // CacheType::Subdirectory
+    return json.parent_path() / (json.stem().string() + "_cache");
 }
 
-Node::Pointer Graph::operator[](const Uuid& uuid) const
+auto Graph::operator[](const Uuid& uuid) const -> Node::Pointer
 {
     auto it = nodes_.find(uuid);
     if (it != nodes_.end()) {
@@ -43,11 +42,11 @@ void Graph::removeNode(const Node::Pointer& n)
     // TODO: Remove all Node connections
 }
 
-std::size_t Graph::size() const { return nodes_.size(); }
+auto Graph::size() const -> std::size_t { return nodes_.size(); }
 
-Graph::State Graph::state() const { return state_; }
+auto Graph::state() const -> Graph::State { return state_; }
 
-fs::path Graph::cacheFile() const
+auto Graph::cacheFile() const -> fs::path
 {
     if (cacheFile_.empty()) {
         return uuid().string() + ".json";
@@ -58,23 +57,29 @@ fs::path Graph::cacheFile() const
 
 void Graph::setCacheFile(const fs::path& p) { cacheFile_ = p; }
 
-CacheType Graph::cacheType() const { return cacheType_; }
+auto Graph::cacheType() const -> CacheType { return cacheType_; }
 
 void Graph::setCacheType(CacheType t) { cacheType_ = t; }
 
-fs::path Graph::cacheDir() const { return CacheDir(cacheFile(), cacheType_); }
+auto Graph::cacheDir() const -> fs::path
+{
+    return CacheDir(cacheFile(), cacheType_);
+}
 
-bool Graph::cacheEnabled() const { return cache_enabled_; }
+auto Graph::cacheEnabled() const -> bool { return cache_enabled_; }
 
 void Graph::setEnableCache(bool enable) { cache_enabled_ = enable; }
 
 void Graph::setProjectMetadata(const Metadata& m) { extraMetadata_ = m; }
 
-const Metadata& Graph::projectMetadata() const { return extraMetadata_; }
+auto Graph::projectMetadata() const -> const Metadata&
+{
+    return extraMetadata_;
+}
 
-Metadata& Graph::projectMetadata() { return extraMetadata_; }
+auto Graph::projectMetadata() -> Metadata& { return extraMetadata_; }
 
-Graph::State Graph::update()
+auto Graph::update() -> Graph::State
 {
     // If already operating or in error, return
     if (state_ == State::Updating or state_ == State::Error) {
@@ -129,13 +134,13 @@ Graph::State Graph::update()
     return state_;
 }
 
-Metadata Graph::Serialize(const Graph& g)
+auto Graph::Serialize(const Graph& g) -> Metadata
 {
     return Serialize(g, g.cache_enabled_, CacheDir(g.cacheFile_, g.cacheType_));
 }
 
-Metadata Graph::Serialize(
-    const Graph& g, bool useCache, const fs::path& cacheDir)
+auto Graph::Serialize(const Graph& g, bool useCache, const fs::path& cacheDir)
+    -> Metadata
 {
     LogDebug("[Graph::Serialize]", "Initializing metadata");
     Metadata meta{
@@ -200,7 +205,7 @@ void Graph::Save(const fs::path& path, const Graph& g, bool writeCache)
     WriteMetadata(path, meta);
 }
 
-Graph Graph::Load(const fs::path& path)
+auto Graph::Load(const fs::path& path) -> Graph
 {
     // Load the metadata
     LogDebug("[Graph::Load]", "Loading graph metadata");
@@ -270,7 +275,7 @@ Graph Graph::Load(const fs::path& path)
     return g;
 }
 
-std::vector<std::string> Graph::CheckRegistration(const fs::path& path)
+auto Graph::CheckRegistration(const fs::path& path) -> std::vector<std::string>
 {
     // Load the metadata
     const std::string logPrefix{"[Graph::CheckRegistration(path)]"};
@@ -301,7 +306,7 @@ std::vector<std::string> Graph::CheckRegistration(const fs::path& path)
     return ids;
 }
 
-std::vector<std::string> Graph::CheckRegistration(const Graph& g)
+auto Graph::CheckRegistration(const Graph& g) -> std::vector<std::string>
 {
     const std::string logPrefix{"[Graph::CheckRegistration(Graph)]"};
     LogDebug(logPrefix, "Checking nodes");
@@ -322,7 +327,7 @@ std::vector<std::string> Graph::CheckRegistration(const Graph& g)
     return ids;
 }
 
-std::vector<Node::Pointer> Graph::Schedule(const Graph& g)
+auto Graph::Schedule(const Graph& g) -> std::vector<Node::Pointer>
 {
     // Node helper struct
     struct NodeHelper {

@@ -1,7 +1,7 @@
 #include "smgl/Utilities.hpp"
 
 // From https://stackoverflow.com/a/4541470
-std::string smgl::detail::demangle(const char* name)
+auto smgl::detail::demangle(const char* name) -> std::string
 {
     int status{-1};
     std::unique_ptr<char, void (*)(void*)> res{

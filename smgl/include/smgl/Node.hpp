@@ -115,7 +115,8 @@ public:
      * Typically, users do not need to call this function directly and should
      * instead use Graph::Save.
      */
-    Metadata serialize(bool useCache, const filesystem::path& cacheRoot);
+    auto serialize(bool useCache, const filesystem::path& cacheRoot)
+        -> Metadata;
 
     /**
      * @brief Deserialize the Node to Metadata
@@ -130,47 +131,47 @@ public:
     void deserialize(const Metadata& meta, const filesystem::path& cacheRoot);
 
     /** @brief Get registered InputPort info */
-    std::vector<Info> getInputPortsInfo() const;
+    auto getInputPortsInfo() const -> std::vector<Info>;
 
     /** @brief Get registered OutputPort info */
-    std::vector<Info> getOutputPortsInfo() const;
+    auto getOutputPortsInfo() const -> std::vector<Info>;
 
     /**
      * @brief Get a registered InputPort by Uuid
      * @throws std::out_of_range if Uuid not registered with Node
      */
-    Input& getInputPort(const Uuid& uuid);
+    auto getInputPort(const Uuid& uuid) -> Input&;
     /**
      * @brief Get a registered InputPort by registered name
      * @throws std::out_of_range if name not registered with Node
      */
-    Input& getInputPort(const std::string& name);
+    auto getInputPort(const std::string& name) -> Input&;
 
     /**
      * @brief Get a registered OutputPort by Uuid
      * @throws std::out_of_range if Uuid not registered with Node
      */
-    Output& getOutputPort(const Uuid& uuid);
+    auto getOutputPort(const Uuid& uuid) -> Output&;
     /**
      * @brief Get a registered OutputPort by registered name
      * @throws std::out_of_range if name not registered with Node
      */
-    Output& getOutputPort(const std::string& name);
+    auto getOutputPort(const std::string& name) -> Output&;
 
     /** @brief Get a list of active input connections */
-    std::vector<Connection> getInputConnections() const;
+    auto getInputConnections() const -> std::vector<Connection>;
 
     /** @brief Get the number of active input connections */
-    size_t getNumberOfInputConnections() const;
+    auto getNumberOfInputConnections() const -> size_t;
 
     /** @brief Get a list of active output connections */
-    std::vector<Connection> getOutputConnections() const;
+    auto getOutputConnections() const -> std::vector<Connection>;
 
     /** @brief Get the number of active output connections */
-    size_t getNumberOfOutputConnections() const;
+    auto getNumberOfOutputConnections() const -> size_t;
 
     /** @brief Get the current update state */
-    State state();
+    auto state() -> State;
 
 protected:
     /** Protected constructor can only be called by child class */
@@ -282,8 +283,8 @@ private:
      * }
      * ```
      */
-    virtual Metadata serialize_(
-        bool useCache, const filesystem::path& cacheDir);
+    virtual auto serialize_(bool useCache, const filesystem::path& cacheDir)
+        -> Metadata;
 
     // clang-format off
     /**
@@ -331,13 +332,13 @@ private:
      * Receive all queued updates on registered InputPorts. Returns true if any
      * port successfully updates.
      */
-    bool update_input_ports_();
+    auto update_input_ports_() -> bool;
 
     /** Notify output ports of this Node's update state */
     void notify_output_ports_(Port::State s);
 
     /** Send queued update on all output ports */
-    bool update_output_ports_();
+    auto update_output_ports_() -> bool;
 
     /**
      * Convenience method for loading existing port information and updating
@@ -393,7 +394,7 @@ using unknown_identifier =
  * @returns Whether or not registration was successful for all provided types
  */
 template <class T, class... Ts>
-bool RegisterNode();
+auto RegisterNode() -> bool;
 
 /**
  * @brief Register a Node type for serialization/deserialization using a
@@ -403,7 +404,7 @@ bool RegisterNode();
  * execution of a program.
  */
 template <class T>
-bool RegisterNode(const std::string& name);
+auto RegisterNode(const std::string& name) -> bool;
 
 /**
  * @brief Deregister a Node type
@@ -416,7 +417,7 @@ bool RegisterNode(const std::string& name);
  * @returns Whether or not de-registration was successful for all provided types
  */
 template <class T, class... Ts>
-bool DeregisterNode();
+auto DeregisterNode() -> bool;
 
 /**
  * @brief Deregister a Node type by Name
@@ -424,12 +425,12 @@ bool DeregisterNode();
  * Because Node registration is global, this typically only needs to be called
  * when testing or debugging custom Nodes.
  */
-bool DeregisterNode(const std::string& name);
+auto DeregisterNode(const std::string& name) -> bool;
 
 /**
  * Create a Node using it's registered name
  */
-Node::Pointer CreateNode(const std::string& name);
+auto CreateNode(const std::string& name) -> Node::Pointer;
 
 /**
  * Get a Node's registered name
@@ -438,22 +439,22 @@ Node::Pointer CreateNode(const std::string& name);
  * registered
  */
 template <class T>
-std::string NodeName();
+auto NodeName() -> std::string;
 
 /** @copydoc NodeName() */
-std::string NodeName(const Node::Pointer& node);
+auto NodeName(const Node::Pointer& node) -> std::string;
 
 /** @copydoc NodeName() */
-std::string NodeName(const Node* node);
+auto NodeName(const Node* node) -> std::string;
 
 /** Check whether a name has been registered for a Node type */
-bool IsRegistered(const std::string& name);
+auto IsRegistered(const std::string& name) -> bool;
 
 /** Check whether a Node's type has been registered */
-bool IsRegistered(const Node::Pointer& node);
+auto IsRegistered(const Node::Pointer& node) -> bool;
 
 /** Check whether a Node's type has been registered */
-bool IsRegistered(const Node* node);
+auto IsRegistered(const Node* node) -> bool;
 
 }  // namespace smgl
 

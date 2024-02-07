@@ -38,14 +38,14 @@ public:
     enum class State { Idle, Updating, Error };
 
     /** @brief Get a Node by Uuid */
-    Node::Pointer operator[](const Uuid& uuid) const;
+    auto operator[](const Uuid& uuid) const -> Node::Pointer;
 
     /** @brief Add a Node to the Graph */
     void insertNode(const Node::Pointer& n);
 
     /** @brief Construct a Node and add it to the graph */
     template <typename NodeType, typename... Args>
-    std::shared_ptr<NodeType> insertNode(Args... args);
+    auto insertNode(Args... args) -> std::shared_ptr<NodeType>;
 
     /** @brief Add one or more Nodes to the Graph */
     template <typename N, typename... Ns>
@@ -55,10 +55,10 @@ public:
     void removeNode(const Node::Pointer& n);
 
     /** @brief Get the number of nodes in the graph */
-    std::size_t size() const;
+    auto size() const -> std::size_t;
 
     /** @brief Get the current graph state */
-    State state() const;
+    auto state() const -> State;
 
     /**
      * @brief Get the root cache file for the Graph
@@ -67,7 +67,7 @@ public:
      * subdirectory in cacheDir(). The exact location is relative to cacheFile()
      * and is determined by setCacheType().
      */
-    filesystem::path cacheFile() const;
+    auto cacheFile() const -> filesystem::path;
 
     /**
      * @brief Set the root cache file for the Graph
@@ -82,7 +82,7 @@ public:
      * A graph's CacheType determines the location of the cache relative to
      * cacheFile().
      */
-    CacheType cacheType() const;
+    auto cacheType() const -> CacheType;
 
     /**
      * @brief Set the graph's CacheType
@@ -95,14 +95,14 @@ public:
      * @brief Returns the cache directory as configured by cacheFile() and
      * cacheType()
      */
-    filesystem::path cacheDir() const;
+    auto cacheDir() const -> filesystem::path;
 
     /**
      * @brief Whether or not graph caching is enabled
      *
      * @copydetails cacheFile()
      */
-    bool cacheEnabled() const;
+    auto cacheEnabled() const -> bool;
 
     /**
      * @brief Set whether or not graph caching is enabled
@@ -115,17 +115,17 @@ public:
     void setProjectMetadata(const Metadata& m);
 
     /** @brief Get the project metadata */
-    const Metadata& projectMetadata() const;
+    auto projectMetadata() const -> const Metadata&;
 
     /** @copydoc projectMetadata() const */
-    Metadata& projectMetadata();
+    auto projectMetadata() -> Metadata&;
 
     /**
      * @brief Update the Graph's nodes
      *
      * Schedules the Nodes of the Graph and update them as needed.
      */
-    State update();
+    auto update() -> State;
 
     /**
      * @brief Serialize a Graph to a Metadata object
@@ -133,7 +133,7 @@ public:
      * @warning This function honors the value of cacheEnabled() and will write
      * data to cacheDir().
      */
-    static Metadata Serialize(const Graph& g);
+    static auto Serialize(const Graph& g) -> Metadata;
 
     /**
      * @brief Save a Graph to a JSON file
@@ -145,8 +145,9 @@ public:
      * @param g Graph to be saved
      * @param writeCache Whether or not to write cache files
      */
-    static void Save(
-        const filesystem::path& path, const Graph& g, bool writeCache = false);
+    static auto Save(
+        const filesystem::path& path, const Graph& g, bool writeCache = false)
+        -> void;
 
     /**
      * @brief Load a Graph from a JSON file
@@ -157,7 +158,7 @@ public:
      *
      * @param path Path to input file in the JSON format
      */
-    static Graph Load(const filesystem::path& path);
+    static auto Load(const filesystem::path& path) -> Graph;
 
     /**
      * @brief Checks that a Graph JSON file can be loaded
@@ -169,8 +170,8 @@ public:
      * @param path Path to input file in the JSON format
      * @return List of Node types that are not registered for serialization
      */
-    static std::vector<std::string> CheckRegistration(
-        const filesystem::path& path);
+    static auto CheckRegistration(const filesystem::path& path)
+        -> std::vector<std::string>;
 
     /**
      * @brief Checks that a Graph can be serialized
@@ -184,7 +185,7 @@ public:
      * @param g Graph to be checked
      * @return List of Node types that are not registered for serialization
      */
-    static std::vector<std::string> CheckRegistration(const Graph& g);
+    static auto CheckRegistration(const Graph& g) -> std::vector<std::string>;
 
     /**
      * @brief Generate an update schedule for the provided Graph
@@ -193,7 +194,7 @@ public:
      * Nodes. Graph must have at least one Node with no input connections and
      * must be acyclic.
      */
-    static std::vector<Node::Pointer> Schedule(const Graph& g);
+    static auto Schedule(const Graph& g) -> std::vector<Node::Pointer>;
 
 private:
     /** Cache file */
@@ -210,12 +211,14 @@ private:
     Metadata extraMetadata_;
 
     /** Perform graph serialization */
-    static Metadata Serialize(
-        const Graph& g, bool useCache, const filesystem::path& cacheDir);
+    static auto Serialize(
+        const Graph& g, bool useCache, const filesystem::path& cacheDir)
+        -> Metadata;
 
     /** Friend function: Graphviz WriteDotFile */
-    friend void WriteDotFile(
-        const filesystem::path& path, const Graph& g, const GraphStyle& style);
+    friend auto WriteDotFile(
+        const filesystem::path& path, const Graph& g, const GraphStyle& style)
+        -> void;
 };
 
 }  // namespace smgl

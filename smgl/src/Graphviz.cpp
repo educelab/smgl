@@ -17,7 +17,7 @@ namespace detail
 {
 // C++17 provides gcd and lcm, but we currently must support C++14
 template <class M, class N>
-constexpr std::common_type_t<M, N> gcd(M m, N n)
+constexpr auto gcd(M m, N n) -> std::common_type_t<M, N>
 {
     while (n != 0) {
         auto t = n;
@@ -28,15 +28,15 @@ constexpr std::common_type_t<M, N> gcd(M m, N n)
 }
 
 template <class M, class N>
-constexpr std::common_type_t<M, N> lcm(M m, N n)
+constexpr auto lcm(M m, N n) -> std::common_type_t<M, N>
 {
     return m / gcd(m, n) * n;
 }
 }  // namespace detail
 }  // namespace smgl
 
-static ElementStyle MergeElementStyles(
-    const ElementStyle& a, const ElementStyle& b)
+static auto MergeElementStyles(const ElementStyle& a, const ElementStyle& b)
+    -> ElementStyle
 {
     ElementStyle result;
     result.align = (b.align.empty()) ? a.align : b.align;
@@ -46,7 +46,8 @@ static ElementStyle MergeElementStyles(
     return result;
 }
 
-static BaseStyle MergeTableStyles(const BaseStyle& a, const BaseStyle& b)
+static auto MergeTableStyles(const BaseStyle& a, const BaseStyle& b)
+    -> BaseStyle
 {
     BaseStyle result;
     result.align = (b.align.empty()) ? a.align : b.align;
@@ -59,7 +60,7 @@ static BaseStyle MergeTableStyles(const BaseStyle& a, const BaseStyle& b)
     return result;
 }
 
-static FontStyle MergeFontStyles(const FontStyle& a, const FontStyle& b)
+static auto MergeFontStyles(const FontStyle& a, const FontStyle& b) -> FontStyle
 {
     FontStyle result;
     result.color = (b.color.empty()) ? a.color : b.color;
@@ -67,7 +68,7 @@ static FontStyle MergeFontStyles(const FontStyle& a, const FontStyle& b)
     return result;
 }
 
-static NodeStyle MergeNodeStyles(const NodeStyle& a, const NodeStyle& b)
+static auto MergeNodeStyles(const NodeStyle& a, const NodeStyle& b) -> NodeStyle
 {
     NodeStyle result;
     result.base = MergeTableStyles(a.base, b.base);
@@ -90,9 +91,12 @@ void GraphStyle::setDefaultStyle(const NodeStyle& style)
     defaultStyle_ = style;
 }
 
-NodeStyle& GraphStyle::defaultStyle() { return defaultStyle_; }
+auto GraphStyle::defaultStyle() -> NodeStyle& { return defaultStyle_; }
 
-const NodeStyle& GraphStyle::defaultStyle() const { return defaultStyle_; }
+auto GraphStyle::defaultStyle() const -> const NodeStyle&
+{
+    return defaultStyle_;
+}
 
 void GraphStyle::setClassStyle(const std::string& name, const NodeStyle& style)
 {
@@ -110,7 +114,7 @@ void GraphStyle::setInstanceStyle(const Node* node, const NodeStyle& style)
     instanceStyles_[node->uuid()] = style;
 }
 
-bool GraphStyle::hasClassStyle(const std::string& name) const
+auto GraphStyle::hasClassStyle(const std::string& name) const -> bool
 {
     return classStyles_.count(name) > 0;
 }
@@ -120,42 +124,43 @@ void GraphStyle::eraseClassStyle(const std::string& name)
     classStyles_.erase(name);
 }
 
-bool GraphStyle::hasInstanceStyle(const Node::Pointer& node) const
+auto GraphStyle::hasInstanceStyle(const Node::Pointer& node) const -> bool
 {
     return instanceStyles_.count(node->uuid()) > 0;
 }
 
-bool GraphStyle::hasInstanceStyle(const Node* node) const
+auto GraphStyle::hasInstanceStyle(const Node* node) const -> bool
 {
     return instanceStyles_.count(node->uuid()) > 0;
 }
 
-NodeStyle& GraphStyle::classStyle(const std::string& name)
+auto GraphStyle::classStyle(const std::string& name) -> NodeStyle&
 {
     return classStyles_[name];
 }
 
-const NodeStyle& GraphStyle::classStyle(const std::string& name) const
+auto GraphStyle::classStyle(const std::string& name) const -> const NodeStyle&
 {
     return classStyles_.at(name);
 }
 
-NodeStyle& GraphStyle::instanceStyle(const Node::Pointer& node)
+auto GraphStyle::instanceStyle(const Node::Pointer& node) -> NodeStyle&
 {
     return instanceStyles_[node->uuid()];
 }
 
-const NodeStyle& GraphStyle::instanceStyle(const Node::Pointer& node) const
+auto GraphStyle::instanceStyle(const Node::Pointer& node) const
+    -> const NodeStyle&
 {
     return instanceStyles_.at(node->uuid());
 }
 
-NodeStyle& GraphStyle::instanceStyle(const Node* node)
+auto GraphStyle::instanceStyle(const Node* node) -> NodeStyle&
 {
     return instanceStyles_[node->uuid()];
 }
 
-const NodeStyle& GraphStyle::instanceStyle(const Node* node) const
+auto GraphStyle::instanceStyle(const Node* node) const -> const NodeStyle&
 {
     return instanceStyles_.at(node->uuid());
 }
@@ -170,7 +175,7 @@ void GraphStyle::eraseInstanceStyle(const Node* node)
     instanceStyles_.erase(node->uuid());
 }
 
-NodeStyle GraphStyle::nodeStyle(const Node::Pointer& node) const
+auto GraphStyle::nodeStyle(const Node::Pointer& node) const -> NodeStyle
 {
     auto style = defaultStyle_;
 
@@ -185,7 +190,7 @@ NodeStyle GraphStyle::nodeStyle(const Node::Pointer& node) const
     return style;
 }
 
-NodeStyle GraphStyle::nodeStyle(const Node* node) const
+auto GraphStyle::nodeStyle(const Node* node) const -> NodeStyle
 {
     auto style = defaultStyle_;
 
@@ -200,65 +205,79 @@ NodeStyle GraphStyle::nodeStyle(const Node* node) const
     return style;
 }
 
-std::unordered_set<Uuid>& GraphStyle::rankMin() { return rankMin_; }
+auto GraphStyle::rankMin() -> std::unordered_set<Uuid>& { return rankMin_; }
 
-const std::unordered_set<Uuid>& GraphStyle::rankMin() const { return rankMin_; }
+auto GraphStyle::rankMin() const -> const std::unordered_set<Uuid>&
+{
+    return rankMin_;
+}
 
-std::unordered_set<Uuid>& GraphStyle::rankSource() { return rankSrc_; }
+auto GraphStyle::rankSource() -> std::unordered_set<Uuid>& { return rankSrc_; }
 
-const std::unordered_set<Uuid>& GraphStyle::rankSource() const
+auto GraphStyle::rankSource() const -> const std::unordered_set<Uuid>&
 {
     return rankSrc_;
 }
 
-std::unordered_set<Uuid>& GraphStyle::rankMax() { return rankMax_; }
+auto GraphStyle::rankMax() -> std::unordered_set<Uuid>& { return rankMax_; }
 
-const std::unordered_set<Uuid>& GraphStyle::rankMax() const { return rankMax_; }
+auto GraphStyle::rankMax() const -> const std::unordered_set<Uuid>&
+{
+    return rankMax_;
+}
 
-std::unordered_set<Uuid>& GraphStyle::rankSink() { return rankSink_; }
+auto GraphStyle::rankSink() -> std::unordered_set<Uuid>& { return rankSink_; }
 
-const std::unordered_set<Uuid>& GraphStyle::rankSink() const
+auto GraphStyle::rankSink() const -> const std::unordered_set<Uuid>&
 {
     return rankSink_;
 }
 
-std::vector<std::vector<Uuid>>& GraphStyle::rankSame() { return rankSame_; }
+auto GraphStyle::rankSame() -> std::vector<std::vector<Uuid>>&
+{
+    return rankSame_;
+}
 
-const std::vector<std::vector<Uuid>>& GraphStyle::rankSame() const
+auto GraphStyle::rankSame() const -> const std::vector<std::vector<Uuid>>&
 {
     return rankSame_;
 }
 
 // Get the Short UUID (first 8 digits)
-inline std::string ShortId(const Uuid& u) { return u.string().substr(0, 8); }
+inline auto ShortId(const Uuid& u) -> std::string
+{
+    return u.string().substr(0, 8);
+}
 
 // Create quoted string for type
 template <typename T>
-inline std::string Quote(const T& s)
+inline auto Quote(const T& s) -> std::string
 {
     return "\"" + std::to_string(s) + "\"";
 }
 
 // Add quotes to a string
 template <>
-inline std::string Quote(const std::string& s)
+inline auto Quote(const std::string& s) -> std::string
 {
     return "\"" + s + "\"";
 }
 
 // Escape " for Graphviz HTML Labels
-static std::string EscapeQuote(const std::string& s) {
+static auto EscapeQuote(const std::string& s) -> std::string
+{
     return std::regex_replace(s, std::regex{"\""}, "&quot;");
 }
 
 // Escape & for Graphviz HTML Labels
-static std::string EscapeAmpersand(const std::string& s)
+static auto EscapeAmpersand(const std::string& s) -> std::string
 {
     return std::regex_replace(s, std::regex{"&"}, "&amp;");
 }
 
 // Escape <> for Graphviz HTML Labels
-static std::string EscapeHTMLTag(const std::string& s) {
+static auto EscapeHTMLTag(const std::string& s) -> std::string
+{
     // <
     auto res = std::regex_replace(s, std::regex{"<"}, "&lt;");
 
@@ -269,7 +288,7 @@ static std::string EscapeHTMLTag(const std::string& s) {
 }
 
 // Escape all special characters for Graphviz HTML Labels
-static std::string EscapeAll(const std::string& s)
+static auto EscapeAll(const std::string& s) -> std::string
 {
     // &
     auto res = EscapeAmpersand(s);
@@ -281,7 +300,7 @@ static std::string EscapeAll(const std::string& s)
     return EscapeQuote(res);
 }
 
-static std::string FontTagString(const FontStyle& style)
+static auto FontTagString(const FontStyle& style) -> std::string
 {
     std::stringstream ss;
     ss << "<font";
@@ -295,7 +314,7 @@ static std::string FontTagString(const FontStyle& style)
     return ss.str();
 }
 
-static std::string ElementStyleString(const ElementStyle& style)
+static auto ElementStyleString(const ElementStyle& style) -> std::string
 {
     std::stringstream ss;
     if (not style.align.empty()) {
@@ -313,7 +332,7 @@ static std::string ElementStyleString(const ElementStyle& style)
     return ss.str();
 }
 
-static std::string TableStyleString(const BaseStyle& style)
+static auto TableStyleString(const BaseStyle& style) -> std::string
 {
     std::stringstream ss;
     ss << ElementStyleString(style);

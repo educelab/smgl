@@ -34,7 +34,8 @@ void Node::update()
     update_output_ports_();
 }
 
-Metadata Node::serialize(bool useCache, const filesystem::path& cacheRoot)
+auto Node::serialize(bool useCache, const filesystem::path& cacheRoot)
+    -> Metadata
 {
     LogDebug("[Node::serialize]", "Building metadata");
     Metadata meta;
@@ -98,46 +99,48 @@ void Node::deserialize(const Metadata& meta, const filesystem::path& cacheRoot)
     deserialize_(meta["data"], nodeCache);
 }
 
-Input& Node::getInputPort(const Uuid& uuid)
+auto Node::getInputPort(const Uuid& uuid) -> Input&
 {
     return *inputs_by_uuid_.at(uuid);
 }
 
-Input& Node::getInputPort(const std::string& name)
+auto Node::getInputPort(const std::string& name) -> Input&
 {
     return *inputs_by_name_.at(name);
 }
 
-Output& Node::getOutputPort(const Uuid& uuid)
+auto Node::getOutputPort(const Uuid& uuid) -> Output&
 {
     return *outputs_by_uuid_.at(uuid);
 }
 
-Output& Node::getOutputPort(const std::string& name)
+auto Node::getOutputPort(const std::string& name) -> Output&
 {
     return *outputs_by_name_.at(name);
 }
 
-std::vector<Node::Info> Node::getInputPortsInfo() const
+auto Node::getInputPortsInfo() const -> std::vector<Node::Info>
 {
 
     std::vector<Info> info;
+    info.reserve(inputs_by_name_.size());
     for (const auto& n : inputs_by_name_) {
         info.emplace_back(n.first, n.second->uuid());
     }
     return info;
 }
 
-std::vector<Node::Info> Node::getOutputPortsInfo() const
+auto Node::getOutputPortsInfo() const -> std::vector<Node::Info>
 {
     std::vector<Info> info;
+    info.reserve(outputs_by_name_.size());
     for (const auto& n : outputs_by_name_) {
         info.emplace_back(n.first, n.second->uuid());
     }
     return info;
 }
 
-std::vector<Connection> Node::getInputConnections() const
+auto Node::getInputConnections() const -> std::vector<Connection>
 {
     std::vector<Connection> cns;
     for (const auto& ip : inputs_by_name_) {
@@ -147,7 +150,7 @@ std::vector<Connection> Node::getInputConnections() const
     return cns;
 }
 
-size_t Node::getNumberOfInputConnections() const
+auto Node::getNumberOfInputConnections() const -> size_t
 {
     size_t cns{0};
     for (const auto& n : inputs_by_name_) {
@@ -156,7 +159,7 @@ size_t Node::getNumberOfInputConnections() const
     return cns;
 }
 
-std::vector<Connection> Node::getOutputConnections() const
+auto Node::getOutputConnections() const -> std::vector<Connection>
 {
     std::vector<Connection> cns;
     for (const auto& op : outputs_by_name_) {
@@ -166,7 +169,7 @@ std::vector<Connection> Node::getOutputConnections() const
     return cns;
 }
 
-size_t Node::getNumberOfOutputConnections() const
+auto Node::getNumberOfOutputConnections() const -> size_t
 {
     size_t cns{0};
     for (const auto& n : outputs_by_name_) {
@@ -175,7 +178,7 @@ size_t Node::getNumberOfOutputConnections() const
     return cns;
 }
 
-Node::State Node::state()
+auto Node::state() -> Node::State
 {
     // TODO: Lock internal state
     if (state_ == State::Updating or state_ == State::Error) {
@@ -205,7 +208,8 @@ Node::State Node::state()
     }
 }
 
-Metadata Node::serialize_(bool useCache, const filesystem::path& cacheDir)
+auto Node::serialize_(bool useCache, const filesystem::path& cacheDir)
+    -> Metadata
 {
     return Metadata::object();
 }
@@ -214,7 +218,7 @@ void Node::deserialize_(const Metadata& data, const filesystem::path& cacheDir)
 {
 }
 
-bool Node::update_input_ports_()
+auto Node::update_input_ports_() -> bool
 {
     auto res = false;
     for (const auto& p : inputs_by_name_) {
@@ -230,7 +234,7 @@ void Node::notify_output_ports_(Port::State s)
     }
 }
 
-bool Node::update_output_ports_()
+auto Node::update_output_ports_() -> bool
 {
     auto res = false;
     for (const auto& p : outputs_by_name_) {
@@ -240,17 +244,17 @@ bool Node::update_output_ports_()
     return res;
 }
 
-bool smgl::DeregisterNode(const std::string& name)
+auto smgl::DeregisterNode(const std::string& name) -> bool
 {
     return detail::NodeFactoryType::Instance().Deregister(name);
 }
 
-std::shared_ptr<Node> smgl::CreateNode(const std::string& name)
+auto smgl::CreateNode(const std::string& name) -> std::shared_ptr<Node>
 {
     return detail::NodeFactoryType::Instance().CreateObject(name);
 }
 
-std::string smgl::NodeName(const Node::Pointer& node)
+auto smgl::NodeName(const Node::Pointer& node) -> std::string
 {
     if (node == nullptr) {
         throw std::invalid_argument("node is a nullptr");
@@ -259,7 +263,7 @@ std::string smgl::NodeName(const Node::Pointer& node)
     return detail::NodeFactoryType::Instance().GetTypeIdentifier(typeid(n));
 }
 
-std::string smgl::NodeName(const Node* node)
+auto smgl::NodeName(const Node* node) -> std::string
 {
     if (node == nullptr) {
         throw std::invalid_argument("node is a nullptr");
@@ -267,12 +271,12 @@ std::string smgl::NodeName(const Node* node)
     return detail::NodeFactoryType::Instance().GetTypeIdentifier(typeid(*node));
 }
 
-bool smgl::IsRegistered(const std::string& name)
+auto smgl::IsRegistered(const std::string& name) -> bool
 {
     return detail::NodeFactoryType::Instance().IsRegistered(name);
 }
 
-bool smgl::IsRegistered(const Node::Pointer& node)
+auto smgl::IsRegistered(const Node::Pointer& node) -> bool
 {
     if (node == nullptr) {
         throw std::invalid_argument("node is a nullptr");
@@ -281,7 +285,7 @@ bool smgl::IsRegistered(const Node::Pointer& node)
     return detail::NodeFactoryType::Instance().IsRegistered(typeid(n));
 }
 
-bool smgl::IsRegistered(const Node* node)
+auto smgl::IsRegistered(const Node* node) -> bool
 {
     if (node == nullptr) {
         throw std::invalid_argument("node is a nullptr");
