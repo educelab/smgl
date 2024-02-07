@@ -10,7 +10,7 @@ void GraphStyle::setClassStyle(const NodeStyle& style)
 }
 
 template <class NodeT>
-bool GraphStyle::hasClassStyle() const
+auto GraphStyle::hasClassStyle() const -> bool
 {
     return hasClassStyle(NodeName<NodeT>());
 }
@@ -22,13 +22,13 @@ void GraphStyle::eraseClassStyle() const
 }
 
 template <class NodeT>
-NodeStyle& GraphStyle::classStyle()
+auto GraphStyle::classStyle() -> NodeStyle&
 {
     return classStyle(NodeName<NodeT>());
 }
 
 template <class NodeT>
-const NodeStyle& GraphStyle::classStyle() const
+auto GraphStyle::classStyle() const -> const NodeStyle&
 {
     return classStyle(NodeName<NodeT>());
 }
@@ -106,7 +106,7 @@ void GraphStyle::setRankSink(const Args&... args)
 }
 
 template <typename... Args>
-std::size_t GraphStyle::setRankSame(const Args&... args)
+auto GraphStyle::setRankSame(const Args&... args) -> std::size_t
 {
     static_assert(sizeof...(args) > 0, "Missing arguments");
     using namespace type_traits;

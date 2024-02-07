@@ -20,13 +20,13 @@ private:
 public:
     LoggingConfig() : out_{&std::cerr} { *out_ << std::boolalpha; }
 
-    [[nodiscard]] LogLevel level() const { return level_; }
+    [[nodiscard]] auto level() const -> LogLevel { return level_; }
 
     void level(LogLevel level) { level_ = level; }
 
-    bool check(LogLevel msgLevel) { return msgLevel >= level_; }
+    auto check(LogLevel msgLevel) -> bool { return msgLevel >= level_; }
 
-    std::ostream& out() { return *out_; }
+    auto out() -> std::ostream& { return *out_; }
 
     void out(std::ostream* out) { out_ = out; }
 };

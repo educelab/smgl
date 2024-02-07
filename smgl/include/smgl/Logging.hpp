@@ -31,7 +31,7 @@ void SetLogLevel(LogLevel level);
 void SetLogLevel(const std::string& level);
 
 /** @brief Get the library log level */
-LogLevel GetLogLevel();
+auto GetLogLevel() -> LogLevel;
 
 /** @brief Set the output stream */
 void SetLogStream(std::ostream* os);

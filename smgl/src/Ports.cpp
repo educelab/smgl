@@ -30,7 +30,7 @@ Port::Port(Port::State s) : state_{s} {}
 
 void Port::setParent(Node* p) { parent_ = p; }
 
-Port::State Port::state() const { return state_; }
+auto Port::state() const -> Port::State { return state_; }
 
 void Port::setState(State s) { state_ = s; }
 
@@ -53,7 +53,7 @@ Input::~Input()
     }
 }
 
-std::vector<Connection> Input::getConnections() const
+auto Input::getConnections() const -> std::vector<Connection>
 {
     if (src_) {
         return {{src_->parent_, src_, parent_, const_cast<Input*>(this)}};
@@ -62,7 +62,7 @@ std::vector<Connection> Input::getConnections() const
     }
 }
 
-size_t Input::numConnections() const { return (src_) ? 1 : 0; }
+auto Input::numConnections() const -> size_t { return (src_) ? 1 : 0; }
 
 void Input::connect(Output* op) { src_ = op; }
 
@@ -73,7 +73,7 @@ void Input::disconnect(Output* op)
     }
 }
 
-Input& Input::operator=(Output& op)
+auto Input::operator=(Output& op) -> Input&
 {
     smgl::connect(op, *this);
     return *this;

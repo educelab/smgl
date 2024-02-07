@@ -43,7 +43,7 @@ struct FontStyle {
     /** @brief Font typeface */
     std::string face;
     /** @brief Returns whether or not this style has an values set */
-    bool empty() const { return color.empty() and face.empty(); }
+    auto empty() const -> bool { return color.empty() and face.empty(); }
 };
 
 /** @brief Style struct containing all sub-styles for a node */
@@ -112,9 +112,9 @@ public:
     /** @brief Set the default node style */
     void setDefaultStyle(const NodeStyle& style);
     /** @brief Access the default node style */
-    NodeStyle& defaultStyle();
+    auto defaultStyle() -> NodeStyle&;
     /** @copydoc defaultStyle() */
-    const NodeStyle& defaultStyle() const;
+    auto defaultStyle() const -> const NodeStyle&;
     /** @} */
 
     /**
@@ -137,10 +137,10 @@ public:
     template <class NodeT>
     void setClassStyle(const NodeStyle& style);
     /** @brief Check if a class of nodes has an associated style */
-    bool hasClassStyle(const std::string& name) const;
+    auto hasClassStyle(const std::string& name) const -> bool;
     /** @copydoc hasClassStyle() */
     template <class NodeT>
-    bool hasClassStyle() const;
+    auto hasClassStyle() const -> bool;
     /** @brief Erase the style associated with a class of nodes */
     void eraseClassStyle(const std::string& name);
     /** @copydoc eraseClassStyle() */
@@ -151,19 +151,19 @@ public:
      *
      * If a style has not been set, one is created and returned.
      */
-    NodeStyle& classStyle(const std::string& name);
+    auto classStyle(const std::string& name) -> NodeStyle&;
     /** @copydoc classStyle(const std::string&) */
     template <class NodeT>
-    NodeStyle& classStyle();
+    auto classStyle() -> NodeStyle&;
     /**
      * @copybrief classStyle(const std::string&)
      *
      * @throws std::out_of_range if a style has not been set
      */
-    const NodeStyle& classStyle(const std::string& name) const;
+    auto classStyle(const std::string& name) const -> const NodeStyle&;
     /** @copydoc classStyle(const std::string&) const */
     template <class NodeT>
-    const NodeStyle& classStyle() const;
+    auto classStyle() const -> const NodeStyle&;
     /** @} */
 
     /**
@@ -184,9 +184,9 @@ public:
     /** @copydoc setInstanceStyle() */
     void setInstanceStyle(const Node* node, const NodeStyle& style);
     /** @brief Check if a node has an associated instance style */
-    bool hasInstanceStyle(const Node::Pointer& node) const;
+    auto hasInstanceStyle(const Node::Pointer& node) const -> bool;
     /** @copydoc hasInstanceStyle() */
-    bool hasInstanceStyle(const Node* node) const;
+    auto hasInstanceStyle(const Node* node) const -> bool;
     /** @brief Erase the style associated with a node instance */
     void eraseInstanceStyle(const Node::Pointer& node);
     /** @copydoc eraseInstanceStyle */
@@ -196,17 +196,17 @@ public:
      *
      * If a style has not been set, one is created and returned.
      */
-    NodeStyle& instanceStyle(const Node::Pointer& node);
+    auto instanceStyle(const Node::Pointer& node) -> NodeStyle&;
     /**
      * @copybrief instanceStyle
      *
      * @throws std::out_of_range if a style has not been set
      */
-    const NodeStyle& instanceStyle(const Node::Pointer& node) const;
+    auto instanceStyle(const Node::Pointer& node) const -> const NodeStyle&;
     /** @copydoc instanceStyle() */
-    NodeStyle& instanceStyle(const Node* node);
+    auto instanceStyle(const Node* node) -> NodeStyle&;
     /** @copydoc instanceStyle(const Node::Pointer&) const */
-    const NodeStyle& instanceStyle(const Node* node) const;
+    auto instanceStyle(const Node* node) const -> const NodeStyle&;
     /** @} */
 
     /**
@@ -217,9 +217,9 @@ public:
      */
     /** @{ */
     /** @brief Get the evaluated node style for a specific node */
-    NodeStyle nodeStyle(const Node::Pointer& node) const;
+    auto nodeStyle(const Node::Pointer& node) const -> NodeStyle;
     /** @copybrief nodeStyle() */
-    NodeStyle nodeStyle(const Node* node) const;
+    auto nodeStyle(const Node* node) const -> NodeStyle;
     /** @} */
 
     /**
@@ -260,7 +260,7 @@ public:
      * with appendRankSame().
      */
     template <typename... Args>
-    std::size_t setRankSame(const Args&... args);
+    auto setRankSame(const Args&... args) -> std::size_t;
 
     /**
      * @brief Assign node(s) to an existing group ranking
@@ -272,29 +272,29 @@ public:
     void appendRankSame(T idx, const Args&... args);
 
     /** @brief Get the set of nodes assigned to the minimum rank */
-    std::unordered_set<Uuid>& rankMin();
+    auto rankMin() -> std::unordered_set<Uuid>&;
     /** @copydoc rankMin() */
-    const std::unordered_set<Uuid>& rankMin() const;
+    auto rankMin() const -> const std::unordered_set<Uuid>&;
 
     /** @brief Get the set of nodes assigned to the source rank */
-    std::unordered_set<Uuid>& rankSource();
+    auto rankSource() -> std::unordered_set<Uuid>&;
     /** @copydoc rankSource() */
-    const std::unordered_set<Uuid>& rankSource() const;
+    auto rankSource() const -> const std::unordered_set<Uuid>&;
 
     /** @brief Get the set of nodes assigned to the maximum rank */
-    std::unordered_set<Uuid>& rankMax();
+    auto rankMax() -> std::unordered_set<Uuid>&;
     /** @copydoc rankMax() */
-    const std::unordered_set<Uuid>& rankMax() const;
+    auto rankMax() const -> const std::unordered_set<Uuid>&;
 
     /** @brief Get the set of nodes assigned to the sink rank */
-    std::unordered_set<Uuid>& rankSink();
+    auto rankSink() -> std::unordered_set<Uuid>&;
     /** @copydoc rankSink() */
-    const std::unordered_set<Uuid>& rankSink() const;
+    auto rankSink() const -> const std::unordered_set<Uuid>&;
 
     /** @brief Get the set of rank groups */
-    std::vector<std::vector<Uuid>>& rankSame();
+    auto rankSame() -> std::vector<std::vector<Uuid>>&;
     /** @copydoc rankSame() */
-    const std::vector<std::vector<Uuid>>& rankSame() const;
+    auto rankSame() const -> const std::vector<std::vector<Uuid>>&;
     /** @} */
 
 private:

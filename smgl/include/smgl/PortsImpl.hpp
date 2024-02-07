@@ -55,14 +55,14 @@ void InputPort<T>::operator()(T v, bool immediate)
 }
 
 template <typename T>
-InputPort<T>& InputPort<T>::operator=(T v)
+auto InputPort<T>::operator=(T v) -> InputPort<T>&
 {
     post(v, false);
     return *this;
 }
 
 template <typename T>
-InputPort<T>& InputPort<T>::operator=(Output& op)
+auto InputPort<T>::operator=(Output& op) -> InputPort<T>&
 {
     Input::operator=(op);
     return *this;
@@ -70,7 +70,7 @@ InputPort<T>& InputPort<T>::operator=(Output& op)
 
 // Update target with most recent compute
 template <typename T>
-bool InputPort<T>::update()
+auto InputPort<T>::update() -> bool
 {
     // TODO: Lock the queue
     if (queued_update_.tick > last_updated_) {
@@ -90,7 +90,7 @@ void InputPort<T>::notify(State s)
 }
 
 template <typename T>
-Metadata InputPort<T>::serialize()
+auto InputPort<T>::serialize() -> Metadata
 {
     Metadata m;
     m["uuid"] = uuid_.string();
@@ -146,7 +146,7 @@ OutputPort<T, Args...>::OutputPort(Obj* obj, ObjMemberFn&& fn, Args&&... args)
 }
 
 template <typename T, typename... Args>
-std::vector<Connection> OutputPort<T, Args...>::getConnections() const
+auto OutputPort<T, Args...>::getConnections() const -> std::vector<Connection>
 {
     using ThisType = OutputPort<T, Args...>;
     std::vector<Connection> cns;
@@ -158,7 +158,7 @@ std::vector<Connection> OutputPort<T, Args...>::getConnections() const
 }
 
 template <typename T, typename... Args>
-size_t OutputPort<T, Args...>::numConnections() const
+auto OutputPort<T, Args...>::numConnections() const -> size_t
 {
     return connections_.size();
 }
@@ -171,12 +171,12 @@ void OutputPort<T, Args...>::setArgs(Args&&... args)
 }
 // Get the most recent value
 template <typename T, typename... Args>
-T OutputPort<T, Args...>::val()
+auto OutputPort<T, Args...>::val() -> T
 {
     return run_(args_);
 }
 template <typename T, typename... Args>
-T OutputPort<T, Args...>::operator()()
+auto OutputPort<T, Args...>::operator()() -> T
 {
     return val();
 }
@@ -184,7 +184,7 @@ T OutputPort<T, Args...>::operator()()
 // Send queued update to connected input ports
 // Note: This is like calling emit() in Qt
 template <typename T, typename... Args>
-bool OutputPort<T, Args...>::update()
+auto OutputPort<T, Args...>::update() -> bool
 {
     Update<T> update{val()};
     for (const auto& c : connections_) {
@@ -202,7 +202,7 @@ void OutputPort<T, Args...>::notify(State s)
 }
 
 template <typename T, typename... Args>
-Metadata OutputPort<T, Args...>::serialize()
+auto OutputPort<T, Args...>::serialize() -> Metadata
 {
     Metadata m;
     m["uuid"] = uuid_.string();
@@ -218,14 +218,14 @@ void OutputPort<T, Args...>::deserialize(const Metadata& m)
 // Redirection functions for calling with default args
 template <typename T, typename... Args>
 template <std::size_t... Is>
-T OutputPort<T, Args...>::run_(
-    std::tuple<Args...>& tup, std::index_sequence<Is...>)
+auto OutputPort<T, Args...>::run_(
+    std::tuple<Args...>& tup, std::index_sequence<Is...>) -> T
 {
     return source_(std::get<Is>(tup)...);
 }
 
 template <typename T, typename... Args>
-T OutputPort<T, Args...>::run_(std::tuple<Args...>& tup)
+auto OutputPort<T, Args...>::run_(std::tuple<Args...>& tup) -> T
 {
     return run_(tup, std::index_sequence_for<Args...>{});
 }

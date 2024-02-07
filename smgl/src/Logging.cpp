@@ -8,7 +8,7 @@ using namespace smgl;
 
 namespace
 {
-LogLevel level_from_str(std::string s)
+auto level_from_str(std::string s) -> LogLevel
 {
     // convert to lower case
     std::transform(s.begin(), s.end(), s.begin(), [](unsigned char c) {
@@ -41,7 +41,10 @@ void smgl::SetLogLevel(const std::string& level)
     SetLogLevel(::level_from_str(level));
 }
 
-LogLevel smgl::GetLogLevel() { return detail::LogConf::Instance().level(); }
+auto smgl::GetLogLevel() -> LogLevel
+{
+    return detail::LogConf::Instance().level();
+}
 
 void smgl::SetLogStream(std::ostream* os)
 {

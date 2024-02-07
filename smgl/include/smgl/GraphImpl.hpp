@@ -2,7 +2,7 @@ namespace smgl
 {
 
 template <typename NodeType, typename... Args>
-std::shared_ptr<NodeType> Graph::insertNode(Args... args)
+auto Graph::insertNode(Args... args) -> std::shared_ptr<NodeType>
 {
     auto n = std::make_shared<NodeType>(std::forward<Args>(args)...);
     insertNode(n);
@@ -10,7 +10,7 @@ std::shared_ptr<NodeType> Graph::insertNode(Args... args)
 }
 
 template <typename N, typename... Ns>
-void Graph::insertNodes(N& n0, Ns&&... nodes)
+auto Graph::insertNodes(N& n0, Ns&&... nodes) -> void
 {
     insertNode(n0);
 #if __cplusplus >= 201703L
