@@ -2,6 +2,7 @@
 
 /** @file */
 
+#include <cstdint>
 #include <memory>
 #include <unordered_map>
 #include <vector>
@@ -31,7 +32,7 @@ class Graph : public UniquelyIdentifiable
 {
 public:
     /** Graph version */
-    constexpr static uint32_t Version{1};
+    constexpr static std::uint32_t Version{1};
 
     /** Graph state */
     enum class State { Idle, Updating, Error };

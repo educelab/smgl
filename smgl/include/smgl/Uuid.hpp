@@ -3,6 +3,7 @@
 /** @file */
 
 #include <array>
+#include <cstdint>
 #include <string>
 
 namespace smgl
@@ -17,7 +18,7 @@ class Uuid
 {
 public:
     /** Byte type */
-    using Byte = uint8_t;
+    using Byte = std::uint8_t;
 
     /** Default constructor. Constructed UUID is nil valued. */
     Uuid() = default;

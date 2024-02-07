@@ -12,7 +12,7 @@ namespace fs = filesystem;
 // Must declare const static member in cpp
 // https://stackoverflow.com/a/53350948
 #if __cplusplus < 201703L
-constexpr uint32_t Graph::Version;
+constexpr std::uint32_t Graph::Version;
 #endif
 
 inline fs::path CacheDir(const fs::path& json, CacheType t)

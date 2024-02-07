@@ -2,6 +2,7 @@
 
 /** @file */
 
+#include <cstdint>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -20,7 +21,7 @@ struct ElementStyle {
     /** @brief Element background color */
     std::string bgcolor;
     /** @brief Element border thickness [0, 255] */
-    uint8_t border{1};
+    std::uint8_t border{1};
     /** @brief Element border color */
     std::string color;
 };
@@ -28,11 +29,11 @@ struct ElementStyle {
 /** @brief Style struct for a node's base style */
 struct BaseStyle : public ElementStyle {
     /** @brief Sub-element border thickness [0, 255] */
-    uint8_t cellborder{1};
+    std::uint8_t cellborder{1};
     /** @brief Sub-element border padding [0, 255] */
-    uint8_t cellpadding{2};
+    std::uint8_t cellpadding{2};
     /** @brief Sub-element border spacing [0, 255] */
-    uint8_t cellspacing{2};
+    std::uint8_t cellspacing{2};
 };
 
 /** @brief Style struct for a node's overall font style */
