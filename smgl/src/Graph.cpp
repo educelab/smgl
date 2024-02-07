@@ -17,12 +17,11 @@ constexpr std::uint32_t Graph::Version;
 
 inline auto CacheDir(const fs::path& json, CacheType t) -> fs::path
 {
-    switch (t) {
-        case CacheType::Adjacent:
-            return json.parent_path();
-        case CacheType::Subdirectory:
-            return json.parent_path() / (json.stem().string() + "_cache");
+    if (t == CacheType::Adjacent) {
+        return json.parent_path();
     }
+    // CacheType::Subdirectory
+    return json.parent_path() / (json.stem().string() + "_cache");
 }
 
 auto Graph::operator[](const Uuid& uuid) const -> Node::Pointer
