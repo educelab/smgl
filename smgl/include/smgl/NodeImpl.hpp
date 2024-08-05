@@ -40,6 +40,12 @@ void Node::registerInputPort(const std::string& name, InputPort<T>& port)
     inputs_by_name_[name] = &port;
 }
 
+template <typename T>
+void Node::registerPort(const std::string& name, InputPort<T>& port)
+{
+    registerInputPort(name, port);
+}
+
 template <typename T, typename... Args>
 void Node::registerOutputPort(
     const std::string& name, OutputPort<T, Args...>& port)
@@ -48,6 +54,12 @@ void Node::registerOutputPort(
     outputs_by_uuid_[port.uuid()] = &port;
     assert(outputs_by_name_.find(name) == outputs_by_name_.end());
     outputs_by_name_[name] = &port;
+}
+
+template <typename T, typename... Args>
+void Node::registerPort(const std::string& name, OutputPort<T, Args...>& port)
+{
+    registerOutputPort(name, port);
 }
 
 template <class T, class... Ts>

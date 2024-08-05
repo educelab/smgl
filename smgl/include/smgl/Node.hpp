@@ -190,6 +190,10 @@ protected:
     template <typename T>
     void registerInputPort(const std::string& name, InputPort<T>& port);
 
+    /** @copydoc registerInputPort() */
+    template <typename T>
+    void registerPort(const std::string& name, InputPort<T>& port);
+
     /**
      * @brief Register an OutputPort instance with this class
      *
@@ -199,6 +203,10 @@ protected:
     template <typename T, typename... Args>
     void registerOutputPort(
         const std::string& name, OutputPort<T, Args...>& port);
+
+    /** @copydoc registerOutputPort() */
+    template <typename T, typename... Args>
+    void registerPort(const std::string& name, OutputPort<T, Args...>& port);
 
     /**
      * @brief Function executed when Node's InputPorts have queued updates and

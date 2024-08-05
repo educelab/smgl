@@ -46,8 +46,6 @@ test:debian:bullseye:
         BACKPORTS_TARGET: "bullseye-backports"
         BACKPORTS_PACKAGES: "cmake"
         EXTRA_CMAKE_FLAGS: "-DSMGL_BUILD_TESTS=ON"
-    tags:
-        - docker
 
 test:debian:bullseye:boost:
     extends: .build_and_test_linux
@@ -59,8 +57,6 @@ test:debian:bullseye:boost:
         BACKPORTS_TARGET: "bullseye-backports"
         BACKPORTS_PACKAGES: "cmake"
         EXTRA_CMAKE_FLAGS: "-DSMGL_BUILD_TESTS=ON -DSMGL_USE_BOOSTFS=ON"
-    tags:
-        - docker
 
 test:ubuntu:22.04:
     extends: .build_and_test_linux
@@ -78,8 +74,6 @@ test:ubuntu:22.04:
           curl -o install_cmake.sh -L https://github.com/Kitware/CMake/releases/download/v3.26.4/cmake-3.26.4-linux-x86_64.sh
           /bin/sh install_cmake.sh --skip-license --prefix=/usr/local
           export CMAKE_CMD="cmake -GNinja $EXTRA_CMAKE_FLAGS .."
-    tags:
-        - docker
 
 test:ubuntu:22.04:boost:
     extends: .build_and_test_linux
@@ -97,8 +91,6 @@ test:ubuntu:22.04:boost:
           curl -o install_cmake.sh -L https://github.com/Kitware/CMake/releases/download/v3.26.4/cmake-3.26.4-linux-x86_64.sh
           /bin/sh install_cmake.sh --skip-license --prefix=/usr/local
           export CMAKE_CMD="cmake -GNinja $EXTRA_CMAKE_FLAGS .."
-    tags:
-        - docker
 
 test:macos:
     extends: .build_and_test
@@ -139,7 +131,5 @@ pages:
     artifacts:
         paths:
             - public
-    tags:
-        - docker
     only:
         - main
