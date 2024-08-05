@@ -37,9 +37,9 @@ public:
 
     AdditionNode()
     {
-        registerInputPort("lhs", lhs);
-        registerInputPort("rhs", rhs);
-        registerOutputPort("result", result);
+        registerPort("lhs", lhs);
+        registerPort("rhs", rhs);
+        registerPort("result", result);
         compute = [this]() { result_ = lhs_ + rhs_; };
     }
 
@@ -77,9 +77,9 @@ public:
 
     SubtractionNode()
     {
-        registerInputPort("lhs", lhs);
-        registerInputPort("rhs", rhs);
-        registerOutputPort("result", result);
+        registerPort("lhs", lhs);
+        registerPort("rhs", rhs);
+        registerPort("result", result);
         compute = [this]() { result_ = lhs_ - rhs_; };
     }
 
@@ -117,9 +117,9 @@ public:
 
     MultiplyNode()
     {
-        registerInputPort("lhs", lhs);
-        registerInputPort("rhs", rhs);
-        registerOutputPort("result", result);
+        registerPort("lhs", lhs);
+        registerPort("rhs", rhs);
+        registerPort("result", result);
         compute = [this]() { result_ = lhs_ * rhs_; };
     }
 
@@ -156,8 +156,8 @@ public:
 
     ClassWrapperNode()
     {
-        registerInputPort("set", set);
-        registerOutputPort("get", get);
+        registerPort("set", set);
+        registerPort("get", get);
     }
 
 private:
@@ -181,14 +181,14 @@ class PassThroughNode : public Node
 public:
     PassThroughNode()
     {
-        registerInputPort("set", set);
-        registerOutputPort("get", get);
+        registerPort("set", set);
+        registerPort("get", get);
     }
 
     explicit PassThroughNode(T val) : val_(val)
     {
-        registerInputPort("set", set);
-        registerOutputPort("get", get);
+        registerPort("set", set);
+        registerPort("get", get);
         set(val);
     }
 
@@ -214,7 +214,7 @@ private:
 class StringCachingNode : public Node
 {
 public:
-    StringCachingNode() : Node{true} { registerInputPort("value", value); }
+    StringCachingNode() : Node{true} { registerPort("value", value); }
 
     InputPort<std::string> value{&value_};
 
