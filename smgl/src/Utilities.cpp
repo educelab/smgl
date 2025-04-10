@@ -1,6 +1,8 @@
 #include "smgl/Utilities.hpp"
 
 #ifdef SMGL_USE_CXXABI
+#include <cstdlib>
+#include <memory>
 #include <cxxabi.h>
 // From https://stackoverflow.com/a/4541470
 auto smgl::detail::demangle(const char* name) -> std::string

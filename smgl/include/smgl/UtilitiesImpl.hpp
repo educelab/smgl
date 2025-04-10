@@ -1,5 +1,3 @@
-#include <cstdlib>
-#include <memory>
 #include <typeinfo>
 
 namespace smgl
