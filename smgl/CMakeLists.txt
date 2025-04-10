@@ -49,6 +49,9 @@ target_link_libraries(smgl
 if(SMGL_USE_BOOSTFS)
     target_compile_definitions(smgl PUBLIC SMGL_USE_BOOSTFS)
 endif()
+if(HAVE_CXXABI_H)
+    target_compile_definitions(smgl PUBLIC SMGL_USE_CXXABI)
+endif()
 
 # Install Library ##
 set_target_properties(smgl

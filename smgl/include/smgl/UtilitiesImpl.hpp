@@ -1,7 +1,6 @@
 #include <cstdlib>
 #include <memory>
 #include <typeinfo>
-#include <cxxabi.h>
 
 namespace smgl
 {
