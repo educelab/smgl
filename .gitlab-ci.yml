@@ -36,26 +36,22 @@
           export CMAKE_CMD="cmake -GNinja $EXTRA_CMAKE_FLAGS .."
 
 ### Tests ###
-test:debian:bullseye:
+test:debian:bookworm:
     extends: .build_and_test_linux
     stage: test
     needs: []
-    image: debian:bullseye-backports
+    image: debian:bookworm
     variables:
-        APT_PACKAGES: "build-essential ninja-build git"
-        BACKPORTS_TARGET: "bullseye-backports"
-        BACKPORTS_PACKAGES: "cmake"
+        APT_PACKAGES: "build-essential cmake ninja-build git"
         EXTRA_CMAKE_FLAGS: "-DSMGL_BUILD_TESTS=ON"
 
-test:debian:bullseye:boost:
+test:debian:bookworm:boost:
     extends: .build_and_test_linux
     stage: test
     needs: []
-    image: debian:bullseye-backports
+    image: debian:bookworm
     variables:
-        APT_PACKAGES: "build-essential ninja-build git libboost-filesystem-dev"
-        BACKPORTS_TARGET: "bullseye-backports"
-        BACKPORTS_PACKAGES: "cmake"
+        APT_PACKAGES: "build-essential cmake ninja-build git libboost-filesystem-dev"
         EXTRA_CMAKE_FLAGS: "-DSMGL_BUILD_TESTS=ON -DSMGL_USE_BOOSTFS=ON"
 
 test:ubuntu:22.04:
@@ -117,11 +113,10 @@ test:macos:boost:
 pages:
     stage: deploy
     needs: []
-    image: debian:bullseye-backports
+    image: debian:bookworm
     before_script:
         - apt-get update
-        - apt-get install -y build-essential doxygen graphviz texlive ghostscript
-        - apt-get -t bullseye-backports install -y cmake
+        - apt-get install -y build-essential cmake doxygen graphviz texlive ghostscript
     script:
         - mkdir -p build/
         - mkdir -p public/
