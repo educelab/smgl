@@ -1,4 +1,4 @@
-[![smgl](graphics/logo/svg/banner.svg)](https://gitlab.com/educelab/smgl)
+[![smgl](graphics/logo/svg/banner.svg)](https://github.com/educelab/smgl)
 
 **smgl** is a C++14 library for creating custom dataflow pipelines that are 
 instrumented for serialization. It was designed to make it easy to convert 
@@ -52,7 +52,7 @@ The CMake project provides a number of flags for configuring the build:
 
 ## Usage
 ### Building Custom Nodes
-See the [Building custom nodes](https://educelab.gitlab.io/smgl/docs/building-custom-nodes.html) tutorial.
+See the [Building custom nodes](https://educelab.github.io/smgl/building-custom-nodes.html) tutorial.
 
 ### Building Graphs
 ```c++
@@ -182,7 +182,7 @@ $ dot -Tpng -o graphviz.png graph.gv
 ![Basic Graph Visualization](graphics/examples/graphviz.png)
 
 ## Documentation
-Visit our full library documentation [here](https://educelab.gitlab.io/smgl/docs/).
+Visit our full library documentation [here](https://educelab.github.io/smgl/).
 
 ## Contributing
 Please see [CONTRIBUTING.md](CONTRIBUTING.md) for more information.

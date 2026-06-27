@@ -1,0 +1,82 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test-linux:
+    name: test:${{ matrix.name }}
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ matrix.image }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: debian-bookworm
+            image: debian:bookworm
+            boost: false
+            kitware_cmake: false
+          - name: debian-bookworm-boost
+            image: debian:bookworm
+            boost: true
+            kitware_cmake: false
+          - name: ubuntu-22.04
+            image: ubuntu:22.04
+            boost: false
+            kitware_cmake: true
+          - name: ubuntu-22.04-boost
+            image: ubuntu:22.04
+            boost: true
+            kitware_cmake: true
+    steps:
+      - name: Install build dependencies
+        run: |
+          apt-get update
+          if [ "${{ matrix.kitware_cmake }}" = "true" ]; then
+            apt-get install -y build-essential curl ninja-build git
+          else
+            apt-get install -y build-essential cmake ninja-build git
+          fi
+          if [ "${{ matrix.boost }}" = "true" ]; then
+            apt-get install -y libboost-filesystem-dev
+          fi
+
+      - name: Install CMake from Kitware
+        if: matrix.kitware_cmake == true
+        run: |
+          curl -o install_cmake.sh -L https://github.com/Kitware/CMake/releases/download/v3.26.4/cmake-3.26.4-linux-x86_64.sh
+          /bin/sh install_cmake.sh --skip-license --prefix=/usr/local
+
+      - uses: actions/checkout@v4
+
+      - name: Build and test
+        run: |
+          EXTRA_CMAKE_FLAGS="-DSMGL_BUILD_TESTS=ON"
+          if [ "${{ matrix.boost }}" = "true" ]; then
+            EXTRA_CMAKE_FLAGS="$EXTRA_CMAKE_FLAGS -DSMGL_USE_BOOSTFS=ON"
+          fi
+          mkdir -p build
+          cd build
+          cmake -GNinja $EXTRA_CMAKE_FLAGS ..
+          ninja
+          ctest -V
+
+  test-macos:
+    name: test:macos
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: brew install ninja
+
+      - name: Build and test
+        run: |
+          mkdir -p build
+          cd build
+          cmake -GNinja -DSMGL_BUILD_TESTS=ON ..
+          ninja
+          ctest -V
