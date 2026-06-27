@@ -5,8 +5,6 @@ instrumented for serialization. It was designed to make it easy to convert
 existing processing workflows into **repeatable** and **observable** pipelines 
 for the purposes of experimental reporting, reliability, and validation.
 
-[[_TOC_]]
-
 ## Requirements
 - CMake 3.24+
 - C++14 compiler with Itanium C++ ABI support (clang, gcc, etc.)
