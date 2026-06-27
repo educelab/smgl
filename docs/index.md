@@ -3,7 +3,7 @@ instrumented for serialization. It was designed to make it easy to convert
 existing processing workflows into **repeatable** and **observable** pipelines
 for the purposes of experimental reporting, reliability, and validation.
 
-View the latest source code on [GitLab](https://gitlab.com/educelab/smgl).
+View the latest source code on [GitHub](https://github.com/educelab/smgl).
 
 ## Requirements
 - CMake 3.24+

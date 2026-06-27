@@ -1,4 +1,4 @@
-[![smgl](graphics/logo/svg/banner.svg)](https://gitlab.com/educelab/smgl)
+[![smgl](graphics/logo/svg/banner.svg)](https://github.com/educelab/smgl)
 
 **smgl** is a C++14 library for creating custom dataflow pipelines that are 
 instrumented for serialization. It was designed to make it easy to convert 

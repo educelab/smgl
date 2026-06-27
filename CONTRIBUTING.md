@@ -7,20 +7,20 @@ feature requests, and code contributions.
 ## Bug Reports and Feature Requests
 If you think you have found a bug or if you would like to request a new 
 feature, please check our 
-[issue tracker](https://gitlab.com/educelab/smgl/-/issues) to make sure
+[issue tracker](https://github.com/educelab/smgl/issues) to make sure
 an issue has not already been opened on your topic.
 
 ## Workflow
 1) Fork this repository
 2) Create a new branch in the forked repository
     - If your branch addresses an issue from the Issue Tracker, please prepend 
-    your branch name with the issue number (e.g. `9-fixes-a-bug`). This will 
-    ensure that your branch and Merge Request are properly linked to the issue.
-3) Open a Merge Request from your branch to this repository
-    - If your branch is not ready to be merged, prepend `WIP:` to the Merge 
-    Request title. This will keep an itinerant project manager from accidentally 
-    merging an incomplete feature. When you are ready for code review, remove 
-    the `WIP:` prefix. 
+    your branch name with the issue number (e.g. `9-fixes-a-bug`) and reference 
+    the issue in your Pull Request (e.g. `Closes #9`) so the two are linked.
+3) Open a Pull Request from your branch to this repository
+    - If your branch is not ready to be merged, open it as a **draft** Pull 
+    Request. This will keep an itinerant project manager from accidentally 
+    merging an incomplete feature. When you are ready for code review, mark the 
+    Pull Request as ready for review. 
 4) Code review
 5) Merge
 
