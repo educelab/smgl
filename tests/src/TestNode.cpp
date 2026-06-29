@@ -163,7 +163,7 @@ TEST(Node, TestDefaultRegistration)
 
     // Test registration
     using ::testing::UnorderedElementsAreArray;
-    EXPECT_TRUE(RegisterNode<SourceNode>());
+    EXPECT_TRUE(RegisterNodes(SMGL_NODE(smgl::test::PassThroughNode<int>)));
     EXPECT_EQ(NodeFactoryType::Instance().GetRegisteredIdentifiers().size(), 1);
     EXPECT_THAT(
         NodeFactoryType::Instance().GetRegisteredIdentifiers(),
@@ -215,7 +215,11 @@ TEST(Node, TestDefaultRegistrationMultiple)
     // Register nodes
     // Note: Tests in this file are all run in the same context, so these
     // registrations affect other tests and vice versa.
-    auto res = RegisterNode<SourceNode, SumOp, SubOp, WrapperOp>();
+    auto res = RegisterNodes(
+        SMGL_NODE(smgl::test::PassThroughNode<int>),
+        SMGL_NODE(smgl::test::AdditionNode<int>),
+        SMGL_NODE(smgl::test::SubtractionNode<int>),
+        SMGL_NODE(smgl::test::ClassWrapperNode<int>));
     EXPECT_TRUE(res);
 
     // Check that the registrations are listed
@@ -238,6 +242,33 @@ TEST(Node, TestDefaultRegistrationMultiple)
 
     // Deregister nodes
     res = DeregisterNode<SourceNode, SumOp, SubOp, WrapperOp>();
+    EXPECT_EQ(NodeFactoryType::Instance().GetRegisteredIdentifiers().size(), 0);
+}
+
+TEST(Node, SourceFaithfulTemplatedKey)
+{
+    // A std-templated node is the case that motivated source-token naming:
+    // under RTTI demangling its key diverged across standard libraries
+    // (libc++ "__1" vs libstdc++ "__cxx11", plus ">>" vs "> >" spacing).
+    // SMGL_NODE captures the verbatim, as-written spelling, so the key is
+    // byte-identical on Linux, macOS, and Windows.
+    using Wrapped = test::ClassWrapperNode<std::string>;
+    const std::string expected{"smgl::test::ClassWrapperNode<std::string>"};
+
+    using ::testing::UnorderedElementsAreArray;
+    EXPECT_TRUE(
+        RegisterNodes(SMGL_NODE(smgl::test::ClassWrapperNode<std::string>)));
+    EXPECT_THAT(
+        NodeFactoryType::Instance().GetRegisteredIdentifiers(),
+        UnorderedElementsAreArray({expected}));
+
+    // The registered key is exactly the source spelling: no inline-namespace
+    // token, no implementation-defined std:: rewriting.
+    EXPECT_EQ(NodeName<Wrapped>(), expected);
+
+    // DeregisterNodes mirrors the SMGL_NODE registration call site.
+    EXPECT_TRUE(
+        DeregisterNodes(SMGL_NODE(smgl::test::ClassWrapperNode<std::string>)));
     EXPECT_EQ(NodeFactoryType::Instance().GetRegisteredIdentifiers().size(), 0);
 }
 
@@ -316,7 +347,7 @@ TEST(Node, SerializeNoCache)
 {
     // Construct a test node
     using SumOp = test::AdditionNode<int>;
-    RegisterNode<SumOp>();
+    RegisterNodes(SMGL_NODE(smgl::test::AdditionNode<int>));
     SumOp node;
     node.lhs(1);
     node.rhs(1);

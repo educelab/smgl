@@ -107,9 +107,11 @@ auto Graph::update() -> Graph::State
     state_ = State::Updating;
     LogDebug("[Graph::update]", "Executing schedule");
     for (auto& n : schedule) {
+        const Node& nref = *n;
         LogDebug(
             "[Graph::update]", "Popped",
-            smgl::detail::type_name(*n) + "[" + n->uuid().short_string() + "]");
+            (IsRegistered(n) ? NodeName(n) : std::string{typeid(nref).name()}) +
+                "[" + n->uuid().short_string() + "]");
         auto state = n->state();
         if (state == Node::State::Ready) {
             LogDebug("[Graph::update]", "Updating node");
@@ -313,11 +315,12 @@ auto Graph::CheckRegistration(const Graph& g) -> std::vector<std::string>
     std::vector<std::string> ids;
     for (const auto& n : g.nodes_) {
         if (not IsRegistered(n.second)) {
-            LogDebug(
-                logPrefix, "Type:", smgl::detail::type_name(*n.second),
-                "Registered:", false);
-            auto& nref = *n.second;
-            ids.emplace_back(detail::type_name(nref));
+            // Unregistered types have no source-token key; fall back to the
+            // raw RTTI name (mangled on GCC/Clang, readable on MSVC).
+            const Node& nref = *n.second;
+            const std::string name{typeid(nref).name()};
+            LogDebug(logPrefix, "Type:", name, "Registered:", false);
+            ids.emplace_back(name);
         } else {
             LogDebug(
                 logPrefix, "Type:", smgl::NodeName(n.second),

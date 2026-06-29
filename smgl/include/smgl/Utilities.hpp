@@ -14,17 +14,6 @@ auto WrapFunc(Obj* obj, ObjMemberFn&& fn, Args&&... args);
 namespace detail
 {
 
-/** @brief Demangle std::type_info::name() */
-std::string demangle(const char* name);
-
-/** @brief Get the demangled name for type T */
-template <class T>
-std::string type_name();
-
-/** @brief Get the demangled name for object t */
-template <class T>
-std::string type_name(const T& t);
-
 /**
  * @brief Helper class for calling function iteratively on parameter pack
  *

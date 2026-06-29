@@ -81,9 +81,10 @@ TEST(Graphviz, BasicGraph)
     graph.update();
 
     // Register nodes
-    RegisterNode<SourceNode>();
-    RegisterNode<SumOpNode>();
-    RegisterNode<SubOpNode>();
+    RegisterNodes(
+        SMGL_NODE(smgl::test::ClassWrapperNode<int>),
+        SMGL_NODE(smgl::test::AdditionNode<int>),
+        SMGL_NODE(smgl::test::SubtractionNode<int>));
 
     WriteDotFile("TestGraphviz_BasicGraph.gv", graph);
 
@@ -139,9 +140,10 @@ TEST(Graphviz, ComplexGraph)
     graph.update();
 
     // Update graph and check final value
-    RegisterNode<SourceNode>();
-    RegisterNode<SumOp>();
-    RegisterNode<SubOp>();
+    RegisterNodes(
+        SMGL_NODE(smgl::test::PassThroughNode<int>),
+        SMGL_NODE(smgl::test::AdditionNode<int>),
+        SMGL_NODE(smgl::test::SubtractionNode<int>));
 
     WriteDotFile("TestGraphviz_ComplexGraph.gv", graph);
 

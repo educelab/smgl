@@ -389,24 +389,52 @@ using unknown_identifier =
     detail::NodeFactoryType::InstanceType::unknown_identifier;
 
 /**
- * @brief Register Node types for serialization/deserialization using an
- * automatically generated name
+ * @brief Source-token descriptor pairing a Node type with a serialization key
  *
- * This function uses the demangled, compiled object name (e.g. `smgl::MyNode`)
- * as the registered Node name. Note that this can result in non-human readable
- * node names when using complex templated type names.
+ * Associates a Node type `T` with the registered serialization key used to
+ * reconstruct it during Graph::Load. Construct via the SMGL_NODE() macro, which
+ * captures the verbatim, as-written spelling of `T` as the key, and pass the
+ * result to RegisterNodes() / DeregisterNodes().
+ *
+ * @see SMGL_NODE
+ */
+template <class T>
+struct NodeDesc {
+    /** @brief Construct a descriptor with an explicit serialization key */
+    explicit NodeDesc(std::string k) : key{std::move(k)} {}
+    /** @brief Registered serialization key (the source spelling of `T`) */
+    std::string key;
+};
+
+/**
+ * @brief Register one or more Node types for serialization/deserialization
+ *
+ * Each descriptor is registered under its source-token key. Use the SMGL_NODE()
+ * macro to construct descriptors so that keys are captured from the as-written
+ * type spelling (e.g. `std::string` stays `std::string`) and are byte-identical
+ * across compilers and platforms.
+ *
+ * ```{.cpp}
+ * smgl::RegisterNodes(
+ *     SMGL_NODE(my::ns::ReadImageNode),
+ *     SMGL_NODE(my::ns::WriteImageNode));
+ * ```
  *
  * Node registration is global and only needs to be performed once during
  * execution of a program.
  *
  * @returns Whether or not registration was successful for all provided types
  */
-template <class T, class... Ts>
-auto RegisterNode() -> bool;
+template <class... Ts>
+auto RegisterNodes(const NodeDesc<Ts>&... descs) -> bool;
 
 /**
  * @brief Register a Node type for serialization/deserialization using a
  * custom name
+ *
+ * This is the low-level primitive that RegisterNodes() folds onto. Most users
+ * should prefer RegisterNodes(SMGL_NODE(...)) so that keys are captured from
+ * source rather than spelled out by hand.
  *
  * Node registration is global and only needs to be performed once during
  * execution of a program.
@@ -426,6 +454,21 @@ auto RegisterNode(const std::string& name) -> bool;
  */
 template <class T, class... Ts>
 auto DeregisterNode() -> bool;
+
+/**
+ * @brief Deregister one or more Node types using source-token descriptors
+ *
+ * The SMGL_NODE()-based counterpart to RegisterNodes(): each descriptor's key
+ * is deregistered by name. Provided for symmetry so a batch can be registered
+ * and deregistered with the same SMGL_NODE() call sites.
+ *
+ * Because Node registration is global, this typically only needs to be called
+ * when testing or debugging custom Nodes.
+ *
+ * @returns Whether or not de-registration was successful for all provided types
+ */
+template <class... Ts>
+auto DeregisterNodes(const NodeDesc<Ts>&... descs) -> bool;
 
 /**
  * @brief Deregister a Node type by Name
@@ -465,5 +508,22 @@ auto IsRegistered(const Node::Pointer& node) -> bool;
 auto IsRegistered(const Node* node) -> bool;
 
 }  // namespace smgl
+
+/**
+ * @brief Construct a smgl::NodeDesc for type `T` with a source-faithful key
+ *
+ * Captures the verbatim, as-written spelling of `T` (via the preprocessor `#`
+ * operator) as the registered serialization key, then wraps it in a
+ * smgl::NodeDesc for use with smgl::RegisterNodes() / smgl::DeregisterNodes().
+ *
+ * Always fully-qualify `T`, even under a `using namespace` directive: the
+ * spelling becomes part of the Node's serialization identity and must be
+ * identical across every registration site and platform.
+ *
+ * ```{.cpp}
+ * smgl::RegisterNodes(SMGL_NODE(my::ns::SumNode));
+ * ```
+ */
+#define SMGL_NODE(T) ::smgl::NodeDesc<T>(#T)
 
 #include "smgl/NodeImpl.hpp"

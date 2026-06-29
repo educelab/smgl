@@ -1,9 +1,3 @@
-## CXX ABI ##
-check_include_file_cxx(cxxabi.h HAVE_CXXABI_H)
-if(NOT HAVE_CXXABI_H)
-    message(FATAL_ERROR "Required include not found: cxxabi.h")
-endif()
-
 ## Modern JSON ##
 option(SMGL_BUILD_JSON "Build in-source JSON library" ON)
 if(SMGL_BUILD_JSON)
