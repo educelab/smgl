@@ -1,6 +1,7 @@
 #include "smgl/Graph.hpp"
 
 #include <functional>
+#include <typeinfo>
 
 #include "smgl/LoggingPrivate.hpp"
 #include "smgl/Metadata.hpp"

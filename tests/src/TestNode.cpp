@@ -272,6 +272,30 @@ TEST(Node, SourceFaithfulTemplatedKey)
     EXPECT_EQ(NodeFactoryType::Instance().GetRegisteredIdentifiers().size(), 0);
 }
 
+TEST(Node, UnregisteredTypeThrowsOnSerialize)
+{
+    // An unregistered type has no source-token key, so it cannot produce a
+    // "type" field. Pin that contract: NodeName() and Node::serialize() throw
+    // unknown_identifier rather than silently emitting a non-round-trippable
+    // key. <float> is used because no other test registers it.
+    using Unregistered = test::PassThroughNode<float>;
+    Unregistered node;
+    ASSERT_FALSE(IsRegistered(&node));
+
+    EXPECT_THROW(NodeName(&node), unknown_identifier);
+    EXPECT_THROW(node.serialize(false, ""), unknown_identifier);
+
+    // Once registered, serialization succeeds and emits the source-token key.
+    EXPECT_TRUE(RegisterNodes(SMGL_NODE(smgl::test::PassThroughNode<float>)));
+    Metadata meta;
+    EXPECT_NO_THROW(meta = node.serialize(false, ""));
+    EXPECT_EQ(
+        meta["type"].get<std::string>(), "smgl::test::PassThroughNode<float>");
+
+    // Cleanup so the shared global factory is left as we found it.
+    EXPECT_TRUE(DeregisterNodes(SMGL_NODE(smgl::test::PassThroughNode<float>)));
+}
+
 TEST(Node, TestNamedRegistrationMultiple)
 {
     // Define nodes

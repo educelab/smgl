@@ -81,8 +81,10 @@ supporting serialization and `Graphviz`/`Logging` as add-ons.
   fully qualified and is byte-identical across compilers/platforms — RTTI
   demangling was removed (see `docs/adr/0001-source-token-node-naming.md`).
   `CreateNode(name)` reconstructs instances during `Graph::Load`. Registration
-  is process-global and only needs to happen once; unregistered types fall back
-  to their UUID and won't round-trip cleanly.
+  is process-global and only needs to happen once; serializing a Node whose type
+  is unregistered throws `unknown_identifier` (it has no source-token key), so a
+  graph must have all its node types registered before `Graph::Save`. (Graphviz
+  is the exception: `WriteDotFile` falls back to the Node's UUID as its label.)
 
 - **Metadata** (`Metadata.hpp`) — Alias over nlohmann/json used as the on-disk
   representation for node state and graph structure.

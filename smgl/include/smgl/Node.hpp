@@ -520,10 +520,14 @@ auto IsRegistered(const Node* node) -> bool;
  * spelling becomes part of the Node's serialization identity and must be
  * identical across every registration site and platform.
  *
+ * The macro is variadic so that multi-parameter templates, whose spelling
+ * contains top-level commas, are passed as a single type:
+ *
  * ```{.cpp}
  * smgl::RegisterNodes(SMGL_NODE(my::ns::SumNode));
+ * smgl::RegisterNodes(SMGL_NODE(my::ns::PairNode<int, double>));
  * ```
  */
-#define SMGL_NODE(T) ::smgl::NodeDesc<T>(#T)
+#define SMGL_NODE(...) ::smgl::NodeDesc<__VA_ARGS__>(#__VA_ARGS__)
 
 #include "smgl/NodeImpl.hpp"
