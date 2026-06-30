@@ -7,7 +7,7 @@ View the latest source code on [GitHub](https://github.com/educelab/smgl).
 
 ## Requirements
 - CMake 3.24+
-- C++14 compiler with Itanium C++ ABI support (clang, gcc, etc.)
+- C++14 compiler (clang, gcc, etc.)
 - [JSON for Modern C++](https://github.com/nlohmann/json) 3.9.1+
 - (optional) Boost.Filesystem 1.58+
     - This project will automatically check if the compiler provides
@@ -102,10 +102,12 @@ write the JSON file and not the intermediate results, omit the optional
 #include <smgl/Graph.hpp>
 
 // Register nodes for serialization
-// Use default name: "SumNode" -> SumNode
-smgl::RegisterNode<SumNode>();
-// Use custom name: "MyMultiplyNode" -> MultiplyNode
-smgl::RegisterNode<MultiplyNode>("MyMultiplyNode");
+// Source-token name: SMGL_NODE captures the as-written spelling as the key.
+// Always fully-qualify the type; the key becomes part of the node's
+// serialization identity and must match everywhere it is registered.
+smgl::RegisterNodes(SMGL_NODE(my::ns::SumNode));
+// Custom name via the lower-level primitive: key is "MyMultiplyNode"
+smgl::RegisterNode<my::ns::MultiplyNode>("MyMultiplyNode");
 
 // Build a graph
 smgl::Graph g;
@@ -129,8 +131,9 @@ is controlled by smgl::Graph::setCacheType.
 #include <smgl/Graph.hpp>
 
 // Register nodes for serialization
-smgl::RegisterNode<SumNode>();
-smgl::RegisterNode<MultiplyNode>();
+smgl::RegisterNodes(
+    SMGL_NODE(my::ns::SumNode),
+    SMGL_NODE(my::ns::MultiplyNode));
 
 // Build a graph
 smgl::Graph g;
@@ -162,7 +165,7 @@ Write the graph to a dot file:
 // Register all node types.
 // Required for type names to appear in graph correctly
 // Node's UUID will be used if type is not registered
-smgl::RegisterNode<SumNode>();
+smgl::RegisterNodes(SMGL_NODE(my::ns::SumNode));
 
 // Construct and write a graph to dot file
 smgl::Graph g;

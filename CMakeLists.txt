@@ -9,7 +9,6 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 # Modules
 include(FetchContent)
 include(CMakeDependentOption)
-include(CheckIncludeFileCXX)
 
 # Find deps
 include(FindDependencies)

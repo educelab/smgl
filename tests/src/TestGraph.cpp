@@ -1,6 +1,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include <typeinfo>
 #include <vector>
 
 #include "smgl/Graph.hpp"
@@ -160,8 +161,9 @@ TEST(Graph, BasicCachingGraph)
     using CacheNode = test::StringCachingNode;
 
     // Caching and serialization requires node registration
-    RegisterNode<SourceNode>("smgl::test::ClassWrapperNode<std::string>");
-    RegisterNode<CacheNode>();
+    RegisterNodes(
+        SMGL_NODE(smgl::test::ClassWrapperNode<std::string>),
+        SMGL_NODE(smgl::test::StringCachingNode));
 
     // Set cache file
     fs::path cacheFile{"TestGraph_BasicCachingGraph.json"};
@@ -224,8 +226,9 @@ TEST(Graph, SerializationDeserialization)
     using SumOpNode = test::AdditionNode<int>;
 
     // Caching and serialization requires node registration
-    RegisterNode<SourceNode>();
-    RegisterNode<SumOpNode>();
+    RegisterNodes(
+        SMGL_NODE(smgl::test::ClassWrapperNode<int>),
+        SMGL_NODE(smgl::test::AdditionNode<int>));
 
     // Create nodes
     auto lhs = std::make_shared<SourceNode>();
@@ -282,8 +285,9 @@ TEST(Graph, CheckRegistration)
     using SumOpNode = test::AdditionNode<int>;
 
     // Register nodes
-    RegisterNode<SourceNode>();
-    RegisterNode<SumOpNode>();
+    RegisterNodes(
+        SMGL_NODE(smgl::test::ClassWrapperNode<int>),
+        SMGL_NODE(smgl::test::AdditionNode<int>));
 
     // Setup graph
     Graph g;
@@ -308,15 +312,18 @@ TEST(Graph, CheckRegistration)
     DeregisterNode<SourceNode>();
     DeregisterNode<SumOpNode>();
 
-    // Test the in-memory overload (all deregistered)
+    // Test the in-memory overload (all deregistered). Unregistered types have
+    // no source-token key, so the in-memory check falls back to raw RTTI names
+    // (mangled on GCC/Clang). Compare against typeid directly rather than
+    // hard-coding a compiler-specific spelling.
     using ::testing::UnorderedElementsAre;
     unregistered = Graph::CheckRegistration(g);
     EXPECT_THAT(
         unregistered, UnorderedElementsAre(
-                          "smgl::test::ClassWrapperNode<int>",
-                          "smgl::test::AdditionNode<int>"));
+                          typeid(SourceNode).name(), typeid(SumOpNode).name()));
 
-    // Test the file overload (all deregistered)
+    // Test the file overload (all deregistered). The on-disk "type" field still
+    // holds the source-token keys written while the nodes were registered.
     unregistered = Graph::CheckRegistration(graphFile);
     EXPECT_THAT(
         unregistered, UnorderedElementsAre(

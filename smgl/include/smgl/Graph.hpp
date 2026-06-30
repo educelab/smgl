@@ -179,8 +179,9 @@ public:
      * Checks that every Node in the Graph is registered with the serialization
      * system. Returns the list of unregistered types as strings so that missing
      * registrations can be handled appropriately before calling Graph::Load.
-     * The returned type strings are the automatically generated names used when
-     * calling RegisterNode() with no arguments.
+     * Because unregistered types have no source-token key, the returned strings
+     * are the raw `typeid().name()` of each unregistered Node (mangled on
+     * GCC/Clang, readable on MSVC).
      *
      * @param g Graph to be checked
      * @return List of Node types that are not registered for serialization

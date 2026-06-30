@@ -62,19 +62,19 @@ void Node::registerPort(const std::string& name, OutputPort<T, Args...>& port)
     registerOutputPort(name, port);
 }
 
-template <class T, class... Ts>
-bool RegisterNode()
+template <class... Ts>
+bool RegisterNodes(const NodeDesc<Ts>&... descs)
 {
     // Reserve nodes
     using NF = detail::NodeFactoryType;
-    NF::Instance().ReserveAdditional(1 + sizeof...(Ts));
-    auto res = RegisterNode<T>(detail::type_name<T>());
+    NF::Instance().ReserveAdditional(sizeof...(Ts));
+    bool res{true};
 #if __cplusplus >= 201703L
-    return res && (RegisterNode<Ts>(detail::type_name<Ts>()) && ...);
+    ((res = res & RegisterNode<Ts>(descs.key)), ...);
 #elif __cplusplus > 201103L
-    detail::ExpandType{0, res &= RegisterNode<Ts>(detail::type_name<Ts>())...};
-    return res;
+    detail::ExpandType{0, res &= RegisterNode<Ts>(descs.key)...};
 #endif
+    return res;
 }
 
 template <class T>
@@ -100,6 +100,18 @@ bool DeregisterNode()
     (deregister(typeid(Ts)), ...);
 #elif __cplusplus > 201103L
     detail::ExpandType{0, (deregister(typeid(Ts)), 0)...};
+#endif
+    return res;
+}
+
+template <class... Ts>
+bool DeregisterNodes(const NodeDesc<Ts>&... descs)
+{
+    bool res{true};
+#if __cplusplus >= 201703L
+    ((res = res & DeregisterNode(descs.key)), ...);
+#elif __cplusplus > 201103L
+    detail::ExpandType{0, res &= DeregisterNode(descs.key)...};
 #endif
     return res;
 }

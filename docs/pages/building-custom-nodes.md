@@ -93,6 +93,21 @@ private:
     }
 ```
 
+Overriding these methods enables a node's _state_ to be (de)serialized, but the
+node _type_ must also be registered with the global factory so that
+smgl::Graph::Load can reconstruct it. Register types with the `SMGL_NODE` macro,
+which captures the type's source spelling as its serialization key. Always
+fully-qualify the type: the key is part of the node's serialization identity and
+must be spelled identically everywhere the type is registered.
+
+```{.cpp}
+// Registration is global; do it once before saving or loading a graph.
+smgl::RegisterNodes(SMGL_NODE(my::ns::AddNode<int>));
+```
+
+Upgrading a project from the older `RegisterNode<T>()` auto-naming API? See
+[Migrating Node registration to source-token naming](@ref migrating-node-registration).
+
 The smgl::Metadata class is a dict-like type which provides easy serialization 
 of many built-in types to the JSON format used by smgl. For data which is 
 not easily serialized to JSON, every smgl::Node can request that smgl 
